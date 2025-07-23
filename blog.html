@@ -24,12 +24,13 @@
                 </ul>
             </div>
             <div class="user-menu">
-                <div class="user-profile">
-                    <i class="fas fa-user-circle"></i>
+                <div class="user-profile" onclick="toggleDropdown()">
                     <span id="userName">Guest User</span>
+                    <i class="fas fa-user-circle"></i>
                 </div>
-                <div class="dropdown">
-                    <a href="#" onclick="showAuthMessage()">Login</a>
+                <div class="dropdown" id="userDropdown">
+                    <a href="#" onclick="showAuthMessage()"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <a href="#"><i class="fas fa-info-circle"></i> Help</a>
                 </div>
             </div>
         </div>
