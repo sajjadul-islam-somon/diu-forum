@@ -44,6 +44,64 @@
         </div>
     </div>
     
+    <!-- Post Job Modal for input of job details -->
+    <div class="modal" id="post-job-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Post a Job Opportunity</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <form id="post-job-form">
+                <div class="form-group">
+                    <label for="job-title">Job Title *</label>
+                    <input type="text" id="job-title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="company">Company *</label>
+                    <input type="text" id="company" name="company" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location *</label>
+                    <input type="text" id="location" name="location" required>
+                </div>
+                <div class="form-group">
+                    <label for="job-type">Job Type *</label>
+                    <select id="job-type" name="job_type" required>
+                        <option value="">Select Type</option>
+                        <option value="internship">Internship</option>
+                        <option value="full-time">Full-time</option>
+                        <option value="part-time">Part-time</option>
+                        <option value="contract">Contract</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <select id="department" name="department">
+                        <option value="">Select Department</option>
+                        <option value="computer-science">Computer Science</option>
+                        <option value="business">Business</option>
+                        <option value="engineering">Engineering</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="description">Job Description *</label>
+                    <textarea id="description" name="description" required placeholder="Describe the role, responsibilities, and requirements..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="required-skills">Required Skills (comma-separated)</label>
+                    <input type="text" id="required-skills" name="required_skills" placeholder="e.g., React, JavaScript, CSS">
+                </div>
+                <div class="form-group">
+                    <label for="application-url">Application URL</label>
+                    <input type="url" id="application-url" name="application_url" placeholder="https://...">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancel-post">Cancel</button>
+                    <button type="submit" class="btn-primary">Post Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 </body>
 </html>
