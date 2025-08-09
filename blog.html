@@ -36,8 +36,148 @@
         </div>
     </nav>
 
-    
+    <div class="blog-layout">
+        <!-- Left Sidebar -->
+        <aside class="left-sidebar">
+            <!-- User Profile Card -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="userAvatar">U</div>
+                    <div class="profile-info">
+                        <h3 id="profileName">User Name</h3>
+                        <p id="profileType">Student</p>
+                        <p id="profileDepartment">Computer Science</p>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <span class="stat-number" id="userPosts">0</span>
+                        <span class="stat-label">Posts</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="userConnections">0</span>
+                        <span class="stat-label">Connections</span>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Quick Links -->
+            <div class="quick-links-card">
+                <h4>Quick Links</h4>
+                <ul class="quick-links">
+                    <li><a href="https://skill.jobs/browse-jobs"><i class="fas fa-briefcase"></i>Skill Jobs</a></li>
+                    <li><a href="https://daffodilvarsity.edu.bd/"><i class="fas fa-graduation-cap"></i>DIU Official Site</a></li>
+                    <li><a href="https://daffodilvarsity.edu.bd/noticeboard"><i class="fas fa-calendar"></i>DIU Notice Board</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i>Student Portal</a></li>
+                    <li><a href="https://teacherportal.diu.edu.bd/"><i class="fa-solid fa-chalkboard-user"></i>Teacher Portal</a></li>
+                    <li><a href="#"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                </ul>
+            </div>
+        </aside>
 
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Create Post Section -->
+            <div class="create-post-card">
+                <div class="create-post-header">
+                    <div class="user-avatar-small" id="createPostAvatar">U</div>
+                    <button class="create-post-btn" id="newPostBtn">
+                        <span>What's on your mind?</span>
+                    </button>
+                </div>
+                <div class="create-post-actions">
+                    <button class="action-item" id="newPostBtn">
+                        <i class="fas fa-edit"></i>
+                        <span>Write Post</span>
+                    </button>
+                    <button class="action-item">
+                        <i class="fas fa-image"></i>
+                        <span>Photo</span>
+                    </button>
+                    <button class="action-item">
+                        <i class="fas fa-video"></i>
+                        <span>Video</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Posts Feed -->
+            <div class="posts-feed" id="postsContainer">
+                <div class="loading" id="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading posts...</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <!-- Trending Topics -->
+            <div class="trending-card">
+                <h4>Trending Topics</h4>
+                <div class="trending-list">
+                    <div class="trending-item">
+                        <span class="trending-tag">#WebDevelopment</span>
+                        <small>245 posts</small>
+                    </div>
+                    <div class="trending-item">
+                        <span class="trending-tag">#CareerTips</span>
+                        <small>189 posts</small>
+                    </div>
+                    <div class="trending-item">
+                        <span class="trending-tag">#DIUEvents</span>
+                        <small>156 posts</small>
+                    </div>
+                    <div class="trending-item">
+                        <span class="trending-tag">#Internships</span>
+                        <small>134 posts</small>
+                    </div>
+                    <div class="trending-item">
+                        <span class="trending-tag">#StudyAbroad</span>
+                        <small>98 posts</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="events-card">
+                <h4>Upcoming Events</h4>
+                <div class="events-list">
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="day">15</span>
+                            <span class="month">Jan</span>
+                        </div>
+                        <div class="event-info">
+                            <h5>Tech Talk: AI in Education</h5>
+                            <p>2:00 PM - Auditorium</p>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="day">20</span>
+                            <span class="month">Jan</span>
+                        </div>
+                        <div class="event-info">
+                            <h5>Career Fair 2024</h5>
+                            <p>10:00 AM - Main Campus</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Links -->
+            <div class="footer-links">
+                <div class="links-section">
+                    <a href="#">About</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Help</a>
+                </div>
+                <p>&copy; 2025 DIU Forum</p>
+            </div>
+        </aside>
+    </div>
 </body>
+
 </html>
