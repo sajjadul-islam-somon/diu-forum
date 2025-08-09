@@ -702,31 +702,6 @@ body {
     font-size: 0.9rem;
 }
 
-.profile-stats {
-    display: flex;
-    padding: 15px 20px;
-    background: #f8fafc;
-}
-
-.stat {
-    flex: 1;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-number {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #1e293b;
-}
-
-.stat-label {
-    font-size: 0.8rem;
-    color: #64748b;
-    margin-top: 2px;
-}
-
 .quick-links-card h4,
 .activity-card h4 {
     padding: 15px 20px;
@@ -863,6 +838,7 @@ body {
 
 .create-post-actions {
     display: flex;
+    justify-content: space-between;
     gap: 15px;
     padding-top: 15px;
     border-top: 1px solid #f1f5f9;
