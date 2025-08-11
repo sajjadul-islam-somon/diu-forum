@@ -5,9 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="jobs.css">
     <title>Job & Internship Board</title>
-    
+    <link rel="shortcut icon" href="assets/diu-logo.png" type="image/x-icon">
 </head>
 <body>
+
+    <nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-brand-card">
+            <div class="nav-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>DIU Forum</span>
+            </div>
+        </div>
+        <div class="nav-menu-card">
+            <div class="nav-menu">
+                <ul class="nav-links">
+                    <li class="nav-item"><a href="blog.html">Feeds</a></li>
+                    <li class="nav-item"><a href="jobs.html">Jobs</a></li>
+                    <li class="nav-item"><a class="active" href="studies.html">H. Studies</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="user-menu-card">
+            <div class="user-menu">
+                <div class="user-profile" onclick="toggleDropdown()"
+                    style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <span id="userName">Guest User</span>
+                    <img id="navUserAvatarImg" alt="User"
+                        style="width:28px;height:28px;border-radius:50%;object-fit:cover;display:none;" />
+                    <i id="navUserIcon" class="fas fa-user-circle" style="font-size:24px;line-height:1;"></i>
+                </div>
+                <div class="dropdown" id="userDropdown">
+                    <div id="dropdownLogin">
+                        <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i>Login</a>
+                    </div>
+                    <div id="dropdownLogout" style="display:none;">
+                        <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i>Logout</a>
+                    </div>
+                    <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                    <a href="settings.html#help"><i class="fas fa-info-circle"></i>Help</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
     <div class="container">
         <div class="header">
             <div class="header-content">

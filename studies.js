@@ -71,7 +71,14 @@ const cancelShare = document.getElementById('cancel-share');
 shareBtn.addEventListener('click', () => {
     const user = localStorage.getItem('user_info');
     if (!user) {
-        window.location.href = 'login.html?redirect=education.html';
+        // Use Google sign-in popup instead of redirect
+        window.diuAuth.signInWithGoogle().then(() => {
+            const newUser = localStorage.getItem('user_info');
+            if (!newUser) return; // If still not logged in, do nothing
+            modal.style.display = 'block';
+        }).catch(() => {
+            alert('Google sign-in failed. Please try again.');
+        });
         return;
     }
     // Show the modal only if logged in

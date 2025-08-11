@@ -64,12 +64,19 @@ window.logoutUser = function() {
 // Modal functionality
 const modal = document.getElementById('post-job-modal');
 const postJobBtn = document.getElementById('post-job-btn');
-postJobBtn.addEventListener('click', () => {
+postJobBtn.addEventListener('click', async () => {
     const user = localStorage.getItem('user_info');
     if (!user) {
-        // Redirect to login page instead of alert
-        window.location.href = 'login.html?redirect=jobs.html';
-        return;
+        // Use Google sign-in popup instead of redirect
+        try {
+            await window.diuAuth.signInWithGoogle();
+            // After login, check again
+            const newUser = localStorage.getItem('user_info');
+            if (!newUser) return; // If still not logged in, do nothing
+        } catch (e) {
+            alert('Google sign-in failed. Please try again.');
+            return;
+        }
     }
     modal.style.display = 'block';
 });
