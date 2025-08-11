@@ -22,7 +22,7 @@
             <div class="nav-menu-card">
                 <div class="nav-menu">
                     <ul class="nav-links">
-                        <li class="nav-item active"><a href="blog.html">Feeds</a></li>
+                        <li class="nav-item"><a class="active" href="blog.html">Feeds</a></li>
                         <li class="nav-item"><a href="jobs.html">Jobs</a></li>
                         <li class="nav-item"><a href="studies.html">H. Studies</a></li>
                     </ul>
@@ -30,9 +30,11 @@
             </div>
             <div class="user-menu-card">
                 <div class="user-menu">
-                    <div class="user-profile" onclick="toggleDropdown()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <div class="user-profile" onclick="toggleDropdown()"
+                        style="display:flex;align-items:center;gap:6px;cursor:pointer;">
                         <span id="userName">Guest User</span>
-                        <img id="navUserAvatarImg" alt="User" style="width:28px;height:28px;border-radius:50%;object-fit:cover;display:none;" />
+                        <img id="navUserAvatarImg" alt="User"
+                            style="width:28px;height:28px;border-radius:50%;object-fit:cover;display:none;" />
                         <i id="navUserIcon" class="fas fa-user-circle" style="font-size:24px;line-height:1;"></i>
                     </div>
                     <div class="dropdown" id="userDropdown">
@@ -56,8 +58,10 @@
             <!-- User Profile Card -->
             <div class="profile-card">
                 <div class="profile-header">
-                    <div class="profile-avatar" id="userAvatar" style="position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;">
-                        <img id="userAvatarImg" alt="Profile" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;" />
+                    <div class="profile-avatar" id="userAvatar"
+                        style="position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                        <img id="userAvatarImg" alt="Profile"
+                            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;" />
                         <span id="userAvatarLetter">U</span>
                     </div>
                     <div class="profile-info">
@@ -120,6 +124,26 @@
             </div>
         </main>
 
+        <!-- Post Card Template (used by posts.js) -->
+        <template id="postTemplate">
+            <article class="post-card">
+                <div class="post-header">
+                    <div class="author-info">
+                        <div class="author-avatar" data-author-avatar>U</div>
+                        <div class="author-details">
+                            <div class="author-name">
+                                <span data-author-name></span><span class="author-meta" data-author-meta
+                                    style="display:none;"></span>
+                            </div>
+                            <div class="post-time" data-post-time></div>
+                        </div>
+                    </div>
+                </div>
+                <h4 class="post-title" data-post-heading style="display:none;"></h4>
+                <div class="post-content" data-post-content></div>
+                <div class="post-attachments" data-post-attachments style="display:none;"></div>
+            </article>
+        </template>
         <!-- Right Sidebar -->
         <aside class="right-sidebar">
             <!-- Trending Topics -->
@@ -192,19 +216,54 @@
     <div id="postModal"
         style="display:none;position:fixed;inset:0;backdrop-filter:blur(2px);background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;">
         <div
-            style="background:#fff;min-width:360px;max-width:500px;width:90%;padding:20px;border-radius:12px;box-shadow:0 8px 30px -4px rgba(0,0,0,.25);font-family:system-ui,sans-serif;">
-            <h3 style="margin-top:0;">Create Post</h3>
-            <div id="postUserInfo" style="font-size:13px;color:#555;margin-bottom:8px;">Signed in as <span
+            style="background:#fff;min-width:360px;max-width:560px;width:90%;padding:22px 24px 26px;border-radius:14px;box-shadow:0 8px 30px -4px rgba(0,0,0,.25);font-family:system-ui,sans-serif;position:relative;">
+            <h3 style="margin:0 0 4px;">Create Post</h3>
+            <div id="postUserInfo" style="font-size:13px;color:#555;margin-bottom:14px;">Signed in as <span
                     id="postAuthorName"></span></div>
-            <textarea id="postContent" rows="5" placeholder="Share something with the community..."
-                style="width:100%;resize:vertical;padding:10px;border:1px solid #ccc;border-radius:8px;font-family:inherit;font-size:14px;"></textarea>
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
-                <button id="cancelPostBtn"
-                    style="background:#eee;border:0;padding:8px 14px;border-radius:6px;cursor:pointer;">Cancel</button>
-                <button id="submitPostBtn"
-                    style="background:#2563eb;color:#fff;border:0;padding:8px 16px;border-radius:6px;font-weight:500;cursor:pointer;">Post</button>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label for="postHeading" style="font-size:13px;font-weight:600;color:#374151;">Heading<span
+                            style="color:#dc2626;"> *</span></label>
+                    <input id="postHeading" type="text" maxlength="120" placeholder="Concise, descriptive title"
+                        style="padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;font-size:14px;" />
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label for="postContent" style="font-size:13px;font-weight:600;color:#374151;">Main Post<span
+                            style="color:#dc2626;"> *</span></label>
+                    <textarea id="postContent" rows="6" placeholder="Share something with the community..."
+                        style="width:100%;resize:vertical;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.4;"></textarea>
+                </div>
+                <div
+                    style="border:1px dashed #cbd5e1;border-radius:10px;padding:14px 14px 10px;display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <button id="addPhotoBtn"
+                            style="background:#f1f5f9;border:1px solid #d1d5db;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px;">
+                            <i class="fas fa-image" style="color:#2563eb;"></i> Photo(s)
+                        </button>
+                        <button id="addVideoBtn"
+                            style="background:#f1f5f9;border:1px solid #d1d5db;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px;">
+                            <i class="fas fa-video" style="color:#2563eb;"></i> Video(s)
+                        </button>
+                        <span style="font-size:11px;color:#64748b;">(Preview & uploads coming soon)</span>
+                    </div>
+                    <input id="postImages" type="file" accept="image/*" multiple style="display:none;" />
+                    <input id="postVideos" type="file" accept="video/*" multiple style="display:none;" />
+                    <div id="attachmentList"
+                        style="display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;max-height:140px;overflow:auto;font-size:12px;line-height:1.4;">
+                    </div>
+                </div>
             </div>
-            <div id="postError" style="color:#c00;font-size:13px;margin-top:8px;display:none;"></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+                <button id="cancelPostBtn"
+                    style="background:#f1f5f9;border:1px solid #d1d5db;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:500;">Cancel</button>
+                <button id="submitPostBtn"
+                    style="background:#2563eb;color:#fff;border:0;padding:8px 18px;border-radius:8px;font-weight:600;cursor:pointer;">Post</button>
+            </div>
+            <div id="postError" style="color:#c00;font-size:13px;margin-top:10px;display:none;"></div>
+            <div id="profileIncompleteMsg"
+                style="display:none;margin-top:12px;font-size:12px;color:#b45309;background:#fff7ed;border:1px solid #fed7aa;padding:8px 10px;border-radius:8px;">
+                Complete your profile (Display Name, Role, Department, Institution) in <a href="settings.html"
+                    style="color:#c2410c;font-weight:600;">Settings</a> to post.</div>
         </div>
     </div>
     <script type="module" src="auth.js"></script>
