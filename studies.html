@@ -10,6 +10,8 @@
     <link rel="icon" type="image/x-icon" href="assets/diu-logo.png">
 </head>
 
+<body>
+
 <nav class="navbar">
     <div class="nav-container">
         <div class="nav-brand-card">
@@ -50,6 +52,116 @@
         </div>
     </div>
 </nav>
+
+
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Higher Education Opportunities</h1>
+                <p>Discover scholarships, graduate programs, and research opportunities worldwide</p>
+            </div>
+            <button class="share-btn" id="share-opportunity-btn">
+                <span>+</span> Share Opportunity
+            </button>
+        </div>
+
+        <div class="filters">
+            <input type="text" class="search-input" placeholder="Search opportunities or institutions..." id="search-input">
+            <select class="filter-select" id="type-filter">
+                <option value="">All Types</option>
+                <option value="phd">PhD</option>
+                <option value="masters">Masters</option>
+                <option value="research">Research</option>
+                <option value="scholarship">Scholarship</option>
+            </select>
+            <select class="filter-select" id="country-filter">
+                <option value="">All Countries</option>
+                <option value="canada">Canada</option>
+                <option value="usa">USA</option>
+                <option value="uk">United Kingdom</option>
+                <option value="germany">Germany</option>
+                <option value="australia">Australia</option>
+            </select>
+        </div>
+
+        <div class="results-info">
+            <span id="results-count">Showing 5 opportunities</span>
+        </div>
+
+        <div class="featured-section">
+            <h2>Featured Opportunities</h2>
+            <div class="featured-flex" id="opportunities-container">
+                <!-- Opportunities will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Opportunity Modal -->
+    <div class="modal" id="share-opportunity-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Share Education Opportunity</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <form id="share-opportunity-form">
+                <div class="form-group">
+                    <label for="opportunity-title">Opportunity Title *</label>
+                    <input type="text" id="opportunity-title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="university">University/Institution *</label>
+                    <input type="text" id="university" name="university" required>
+                </div>
+                <div class="form-group">
+                    <label for="country">Country *</label>
+                    <input type="text" id="country" name="country" required>
+                </div>
+                <div class="form-group">
+                    <label for="opportunity-type">Opportunity Type *</label>
+                    <select id="opportunity-type" name="opportunity_type" required>
+                        <option value="">Select Type</option>
+                        <option value="phd">PhD Program</option>
+                        <option value="masters">Masters Program</option>
+                        <option value="research">Research Position</option>
+                        <option value="scholarship">Scholarship</option>
+                        <option value="fellowship">Fellowship</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="funding">Funding Details</label>
+                    <select id="funding" name="funding">
+                        <option value="">Select Funding</option>
+                        <option value="full-funding">Full Funding</option>
+                        <option value="partial-scholarship">Partial Scholarship</option>
+                        <option value="self-funded">Self Funded</option>
+                        <option value="assistantship">Teaching/Research Assistantship</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="deadline">Application Deadline</label>
+                    <input type="date" id="deadline" name="deadline">
+                </div>
+                <div class="form-group">
+                    <label for="opportunity-description">Description *</label>
+                    <textarea id="opportunity-description" name="description" required placeholder="Describe the opportunity, requirements, and application process..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="requirements">Requirements (comma-separated)</label>
+                    <input type="text" id="requirements" name="requirements" placeholder="e.g., Bachelor's degree, IELTS 7.0, GPA 3.5">
+                </div>
+                <div class="form-group">
+                    <label for="application-url">Application/More Info URL</label>
+                    <input type="url" id="application-url" name="application_url" placeholder="https://...">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancel-share">Cancel</button>
+                    <button type="submit" class="btn-primary">Share Opportunity</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="studies.js"></script>
 <script type="module" src="auth.js"></script>
 </body>
 
