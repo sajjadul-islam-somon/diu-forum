@@ -32,6 +32,7 @@ body {
     padding: 1rem 2rem;
     max-width: 1200px;
     margin: 0 auto;
+    z-index: 1000;
 }
 
 .nav-left {
@@ -275,8 +276,16 @@ body {
 .icon-placeholder {
     width: 24px;
     height: 24px;
-    background: #6b7280;
+    /* background: #6b7280; */
     border-radius: 2px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+i {
+    color: rgb(68, 59, 59);
+    margin-top: 4px;
 }
 
 .feature-card h3 {
