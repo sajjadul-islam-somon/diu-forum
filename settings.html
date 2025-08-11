@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings - DIU Forum</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="blog.css" /> <!-- reuse navbar + base tokens -->
+    <link rel="stylesheet" href="settings.css" />
+    <link rel="icon" type="image/x-icon" href="assets/diu-logo.png" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand-card">
+                <div class="nav-brand"><i class="fas fa-graduation-cap"></i><span>DIU Forum</span></div>
+            </div>
+            <div class="nav-menu-card">
+                <div class="nav-menu">
+                    <ul class="nav-links">
+                        <li class="nav-item"><a href="blog.html">Feeds</a></li>
+                        <li class="nav-item"><a href="jobs.html">Jobs</a></li>
+                        <li class="nav-item"><a href="studies.html">H. Studies</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="user-menu-card">
+                <div class="user-menu">
+                    <div class="user-profile" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                        <span id="userName">Guest User</span>
+                        <img id="navUserAvatarImg" alt="User"
+                            style="width:32px;height:32px;border-radius:50%;object-fit:cover;display:none;" />
+                        <i id="navUserIcon" class="fas fa-user-circle" style="font-size:32px;line-height:1;"></i>
+                    </div>
+                    <div class="dropdown" id="userDropdown">
+                        <div id="dropdownLogin"><a href="#" class="sign-in-btn"><i
+                                    class="fas fa-sign-in-alt"></i>Login</a></div>
+                        <div id="dropdownLogout" style="display:none;"><a href="#" class="sign-out-btn"><i
+                                    class="fas fa-sign-out-alt"></i>Logout</a></div>
+                        <a href="settings.html" class="active"><i class="fas fa-cog"></i>Settings</a>
+                        <a href="settings.html#help"><i class="fas fa-info-circle"></i>Help</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="settings-wrapper">
+        <aside class="settings-sidebar">
+            <h3>Settings</h3>
+            <nav class="settings-nav" id="settingsNav">
+                <a href="#profile" class="active"><i class="fas fa-user"></i><span>Profile</span></a>
+                <a href="#about"><i class="fas fa-circle-info"></i><span>About</span></a>
+                <a href="#privacy"><i class="fas fa-shield-alt"></i><span>Privacy</span></a>
+                <a href="#help"><i class="fas fa-life-ring"></i><span>Help</span></a>
+            </nav>
+        </aside>
+
+        <main class="settings-content">
+            <!-- Profile -->
+            <section id="profile" class="settings-section">
+                <h2>Profile</h2>
+                <p class="desc">Update your public profile information. This will appear next to your posts and
+                    interactions.</p>
+                <div class="inline-avatar">
+                    <img id="settingsAvatarImg" src="" alt="Avatar" style="display:none;" />
+                    <div id="settingsAvatarFallback"
+                        style="width:64px;height:64px;border-radius:50%;background:#667eea;color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:600;">
+                        U</div>
+                    <div style="flex:1;">
+                        <div style="font-size:13px;color:#64748b;">Avatar comes from your Google account.</div>
+                    </div>
+                </div>
+                <form id="profileForm">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="displayName">Display Name</label>
+                            <input id="displayName" name="displayName" type="text" placeholder="Your name" />
+                            <div class="note">If left blank we use your Google name.</div>
+                        </div>
+                        <div class="form-field">
+                            <label for="role">Role</label>
+                            <select id="role" name="role">
+                                <option value="">Select role</option>
+                                <option value="student">Student</option>
+                                <option value="alumni">Alumni</option>
+                                <option value="faculty">Faculty</option>
+                                <option value="official">Other Official</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="department">Department</label>
+                            <select id="department" name="department">
+                                <option value="">Select department</option>
+                                <option value="cse">CSE</option>
+                                <option value="eee">EEE</option>
+                                <option value="swe">SWE</option>
+                                <option value="eng">ENG</option>
+                                <option value="textile">Textile</option>
+                                <option value="nfe">NFE</option>
+                                <option value="bba">BBA</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="institution">Current Institution</label>
+                            <input type="text" id="institution" name="institution" placeholder="e.g., DIU / Company / Organization" />
+                        </div>
+                        <div class="form-field" style="grid-column:1 / -1;">
+                            <label for="bio">Bio</label>
+                            <textarea id="bio" name="bio" rows="4" placeholder="Short introduction..."></textarea>
+                        </div>
+                    </div>
+                    <div class="save-row"><button class="btn-save" type="submit">Save Changes</button></div>
+                </form>
+                <div id="profileSaveMsg"
+                    style="display:none;margin-top:14px;font-size:13px;font-weight:500;color:#15803d;">Saved!</div>
+            </section>
+
+            <!-- About -->
+            <section id="about" class="settings-section">
+                <h2>About</h2>
+                <p class="desc">Learn more about the DIU Forum platform and its mission to connect students, alumni, and
+                    faculty.</p>
+                <p>DIU Forum is a community-driven platform for sharing knowledge, opportunities, and experiences. We
+                    aim to create a helpful, respectful space for academic & professional growth.</p>
+            </section>
+
+            <!-- Privacy -->
+            <section id="privacy" class="settings-section">
+                <h2>Privacy</h2>
+                <p class="desc">Understand how your information is used and manage basic visibility preferences.</p>
+                <ul class="privacy-list">
+                    <li>We store only minimal profile data (name, optional department, bio).</li>
+                    <li>Your email is used solely for authentication (not shown to other users).</li>
+                    <li>Posts you create are public to authenticated users.</li>
+                    <li>You can remove custom profile info anytime (it will fall back to auth defaults).</li>
+                </ul>
+            </section>
+
+            <!-- Help -->
+            <section id="help" class="settings-section">
+                <h2>Help & Support</h2>
+                <p class="desc">FAQs and guidance. More resources coming soon.</p>
+                <dl class="help-faq">
+                    <dt>How do I change my avatar?</dt>
+                    <dd>Update your picture in your Google Account. Re-sign or refresh to sync.</dd>
+                    <dt>Why am I asked to login again?</dt>
+                    <dd>Sessions may expire or your browser cleared storage. Just sign in again.</dd>
+                    <dt>Who can see my posts?</dt>
+                    <dd>All signed-in users currently. Future updates may add granular visibility.</dd>
+                </dl>
+                <p style="margin-top:18px;font-size:13px;color:#64748b;">Need more help? Email: <a
+                        href="mailto:support@example.com">support@example.com</a></p>
+            </section>
+        </main>
+    </div>
+    <a class="anchor-top" href="#top" title="Back to top"><i class="fas fa-arrow-up"></i></a>
+
+    <script type="module" src="auth.js"></script>
+    <script type="module">
+        // Minimal client-side persistence using localStorage (no Firestore yet)
+        const form = document.getElementById('profileForm');
+        const saveMsg = document.getElementById('profileSaveMsg');
+        const displayNameInput = document.getElementById('displayName');
+    const deptSelect = document.getElementById('department');
+    const roleSelect = document.getElementById('role');
+    const institutionInput = document.getElementById('institution');
+        const bioInput = document.getElementById('bio');
+        const avatarImg = document.getElementById('settingsAvatarImg');
+        const avatarFallback = document.getElementById('settingsAvatarFallback');
+
+        // Load stored data
+        const stored = JSON.parse(localStorage.getItem('diuProfile') || '{}');
+        if (stored.displayName) displayNameInput.value = stored.displayName;
+    if (stored.department) deptSelect.value = stored.department;
+    if (stored.role) roleSelect.value = stored.role;
+    if (stored.institution) institutionInput.value = stored.institution;
+        if (stored.bio) bioInput.value = stored.bio;
+
+        // Hook into existing auth state via global window.diuAuth if available
+        const syncAuth = () => {
+            const auth = window.diuAuth?.auth;
+            if (!auth) return;
+            const user = auth.currentUser;
+            if (!user) return;
+            if (user.photoURL) {
+                avatarImg.src = user.photoURL; avatarImg.style.display = 'block'; avatarFallback.style.display = 'none';
+            } else {
+                avatarImg.style.display = 'none'; avatarFallback.style.display = 'flex'; avatarFallback.textContent = (user.displayName || 'U')[0].toUpperCase();
+            }
+            if (!displayNameInput.value) displayNameInput.value = user.displayName || '';
+        };
+        setTimeout(syncAuth, 400); // delay to allow auth.js init
+        document.addEventListener('auth-ready', syncAuth);
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const data = {
+                displayName: displayNameInput.value.trim(),
+                role: roleSelect.value,
+                department: deptSelect.value,
+                institution: institutionInput.value.trim(),
+                bio: bioInput.value.trim()
+            };
+            localStorage.setItem('diuProfile', JSON.stringify(data));
+            saveMsg.style.display = 'block';
+            saveMsg.textContent = 'Saved!';
+            setTimeout(() => saveMsg.style.display = 'none', 2600);
+        });
+
+        // Highlight active link on scroll
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    document.querySelectorAll('.settings-nav a').forEach(a => a.classList.remove('active'));
+                    const link = document.querySelector(`.settings-nav a[href='#${entry.target.id}']`);
+                    if (link) link.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-40% 0px -50% 0px', threshold: 0 });
+        document.querySelectorAll('.settings-section').forEach(sec => observer.observe(sec));
+    </script>
+</body>
+
+</html>

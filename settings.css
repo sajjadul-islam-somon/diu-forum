@@ -1,0 +1,31 @@
+/* Settings Page Styles */
+body { font-family: system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; background:#f1f5f9; margin:0; }
+.settings-wrapper { max-width:1200px; margin:40px auto; padding:0 20px; display:grid; grid-template-columns:260px 1fr; gap:28px; }
+.settings-sidebar { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:18px 0; height:fit-content; box-shadow:0 2px 6px rgba(0,0,0,.05); position:sticky; top:84px; }
+.settings-sidebar h3 { margin:0 22px 14px; font-size:14px; text-transform:uppercase; letter-spacing:.5px; color:#64748b; font-weight:600; }
+.settings-nav { list-style:none; margin:0; padding:0; }
+.settings-nav a { display:flex; align-items:center; gap:10px; padding:10px 22px; text-decoration:none; color:#334155; font-size:15px; font-weight:500; border-left:4px solid transparent; transition:background .18s,border-color .18s,color .18s; }
+.settings-nav a:hover { background:#f1f5f9; color:#2563eb; }
+.settings-nav a.active, .settings-nav a:target { background:#eff6ff; border-color:#2563eb; color:#1d4ed8; }
+.settings-content { display:flex; flex-direction:column; gap:40px; }
+.settings-section { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:28px 32px 34px; box-shadow:0 2px 8px rgba(0,0,0,.04); scroll-margin-top:90px; }
+.settings-section h2 { margin:0 0 14px; font-size:22px; font-weight:600; color:#1e293b; }
+.settings-section p.desc { margin:0 0 22px; color:#64748b; font-size:14px; line-height:1.5; }
+.form-grid { display:grid; gap:18px 28px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
+.form-field { display:flex; flex-direction:column; gap:6px; }
+.form-field label { font-size:13px; font-weight:600; letter-spacing:.3px; color:#475569; }
+.form-field input, .form-field select, .form-field textarea { border:1px solid #cbd5e1; border-radius:8px; padding:10px 12px; font-size:14px; font-family:inherit; background:#fff; transition:border-color .18s, box-shadow .18s; }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline:none; border-color:#2563eb; box-shadow:0 0 0 2px rgba(37,99,235,.15); }
+.inline-avatar { display:flex; align-items:center; gap:16px; margin:4px 0 8px; }
+.inline-avatar img { width:64px; height:64px; border-radius:50%; object-fit:cover; box-shadow:0 2px 6px rgba(0,0,0,.15); }
+.save-row { display:flex; justify-content:flex-end; margin-top:26px; }
+.btn-save { background:#2563eb; color:#fff; border:0; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; box-shadow:0 2px 8px rgba(37,99,235,.35); transition:background .18s, transform .18s; }
+.btn-save:hover { background:#1d4ed8; transform:translateY(-2px); }
+.note { font-size:12px; color:#64748b; margin-top:4px; }
+.privacy-list { padding-left:18px; }
+.privacy-list li { margin:6px 0; color:#475569; line-height:1.4; }
+.help-faq dt { font-weight:600; margin-top:18px; }
+.help-faq dd { margin:6px 0 14px 0; color:#475569; line-height:1.5; }
+.anchor-top { position:fixed; bottom:18px; right:18px; background:#2563eb; color:#fff; width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:50%; text-decoration:none; font-size:18px; box-shadow:0 4px 18px -4px rgba(0,0,0,.35); }
+.anchor-top:hover { background:#1d4ed8; }
+@media (max-width:980px){ .settings-wrapper { grid-template-columns:1fr; } .settings-sidebar { position:static; top:auto; display:flex; overflow-x:auto; border-radius:12px; } .settings-sidebar h3 { display:none; } .settings-nav { display:flex; gap:4px; } .settings-nav a { border-left:none; border-bottom:3px solid transparent; padding:10px 16px; border-radius:10px; white-space:nowrap; } .settings-nav a.active { border-bottom-color:#2563eb; } }

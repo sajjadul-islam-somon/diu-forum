@@ -15,7 +15,6 @@ body {
 .navbar {
     background-color: #667eea;
     color: white;
-    padding: 0.6rem 0;
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -25,37 +24,56 @@ body {
 .nav-container {
     max-width: 1200px;
     margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
+    padding: 0;
+    height: 60px;
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
     align-items: center;
 }
 
+.nav-brand-card,
+.nav-menu-card,
+.user-menu-card {
+    display: flex;            /* keep contents horizontal */
+    align-items: center;      /* vertically align inside each cell */
+}
+
+.nav-menu-card {
+    justify-content: center;  /* center menu items in middle column */
+}
+
+/* Nav-Left: Logo/Brand */
 .nav-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.5rem;
-    font-weight: bold
+    gap: 8px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap; /* prevent breaking */
 }
 
-.nav-brand i {
-    font-size: 1.8rem;
+/* Nav-Middle: Menu */
+.nav-menu {
+    display: flex;
+    justify-content: center;
 }
-
 
 .nav-links {
     display: flex;
+    gap: 150px;
     list-style: none;
-    gap: 2rem;
+    margin: 0;
+    padding: 0;
     align-items: center;
 }
 
 .nav-links a {
-    color: white;
     text-decoration: none;
-    margin: 0.2rem 5rem 0.2rem 1rem;
-    padding: 0.5rem 1rem;
-    /* top-bottom left-right padding */
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 8px 12px;
     border-radius: 6px;
     transition: all 0.3s ease;
 }
@@ -66,8 +84,19 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.user-menu {
+/* Nav-Right: User info */
+.user-menu-card {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
     position: relative;
+}
+
+.userName {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* prevents long names from breaking layout */
 }
 
 .user-profile {
@@ -75,8 +104,7 @@ body {
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    padding: 0.5rem 0.8rem;
-    margin: auto;
+    padding: 0.3rem 0.8rem;
     border-radius: 6px;
     transition: background 0.3s ease;
 }
@@ -91,34 +119,64 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.dropdown {
-    position: absolute;
-    display: none;
-    top: 100%;
-    right: 0;
-    background: white;
-    color: #333;
-    min-width: 120px;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+.user-menu {
+    position: relative;
 }
 
-.user-menu:hover .dropdown {
+.user-menu::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 8px;
+    pointer-events: none;
+}
+.dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    display: none;
+    background: white;
+    color: #333;
+    min-width: 170px;
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    box-shadow: 0 6px 26px -4px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+    animation: dropdownFade .14s ease;
+}
+
+@keyframes dropdownFade {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-menu:hover .dropdown,
+.user-menu .dropdown:hover {
     display: block;
 }
 
 .dropdown a {
     text-decoration: none;
-    display: block;
-    margin: auto;
-    padding: 0.3rem .5rem;
-    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.45rem .65rem;
+    margin: 2px 0;
+    color: #1e293b;
     border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    transition: background .15s, color .15s;
+}
+.dropdown a i { 
+    width: 16px; text-align: center; color: #64748b; 
 }
 
 .dropdown a:hover {
-    background: rgba(0, 0, 0, 0.1);
+    background: #f1f5f9;
+    color: #2563eb;
 }
 
 /* Buttons */
@@ -637,8 +695,7 @@ body {
     display: none;
 }
 
-/* Blog, Jobs, Studies Pages */
-/* LinkedIn-style Blog Layout */
+/* Blog Layout */
 .blog-layout {
     display: grid;
     grid-template-columns: 280px 1fr 320px;
