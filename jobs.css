@@ -12,7 +12,7 @@ body {
 
 /* Nav Bar design  */
 .navbar {
-    background-color: #667eea;
+    background: linear-gradient(#667eea 0%, #5c72d3 100%);
     color: white;
     position: sticky;
     top: 0;
@@ -70,7 +70,7 @@ body {
 .nav-links a {
     text-decoration: none;
     color: white;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 500;
     padding: 8px 12px;
     border-radius: 6px;
