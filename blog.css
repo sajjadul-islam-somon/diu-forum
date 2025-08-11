@@ -844,6 +844,12 @@ body {
     gap: 20px;
 }
 
+.posts-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .create-post-card {
     background: white;
     border-radius: 12px;
@@ -957,11 +963,6 @@ body {
     font-size: 0.9rem;
 }
 
-.posts-feed {
-    display: flex;
-    flex-direction: column;
-    gap: 0px; /* Reduced from 20px */
-}
 
 /* Right Sidebar */
 .right-sidebar {
@@ -1156,7 +1157,7 @@ body {
     color: #94a3b8;
 }
 
-/* Posts, Jobs, Studies Cards */
+/* Posts Cards */
 .posts-container {
     display: grid;
     gap: 1.5rem;

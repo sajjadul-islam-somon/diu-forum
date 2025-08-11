@@ -49,11 +49,15 @@ function capFirst(s) { return (s || '').charAt(0).toUpperCase() + (s || '').slic
 
 function renderPosts(snapshot) {
     if (!postsContainer) return;
-    if (snapshot.empty) { postsContainer.innerHTML = `<div style="padding:40px;text-align:center;color:#666;">No posts yet. Be the first to share something! ✨</div>`; return; }
-    const items = [];
+    if (snapshot.empty) {
+        postsContainer.innerHTML = `<div style="padding:40px;text-align:center;color:#666;">No posts yet. Be the first to share something! ✨</div>`;
+        return;
+    }
+    postsContainer.innerHTML = '';
+    const tpl = document.getElementById('postTemplate');
     snapshot.forEach(docRef => {
         const d = docRef.data();
-        const ts = d.time || d.createdAt; // backward compatibility
+        const ts = d.time || d.createdAt;
         const time = ts?.toDate ? ts.toDate().toLocaleString() : '';
         const name = d.name || d.authorName || 'Unknown';
         const dept = d.dept || d.department;
@@ -62,24 +66,52 @@ function renderPosts(snapshot) {
         if (d.role) metaParts.push(capFirst(d.role));
         if (dept) metaParts.push(String(dept).toUpperCase());
         if (d.institution) metaParts.push(d.institution);
-        const combinedLine = metaParts.length
-            ? `${escapeHtml(name)} <span style=\"font-weight:500;color:#475569;\">| ${escapeHtml(metaParts.join(', '))}</span>`
-            : escapeHtml(name);
-        items.push(`
-      <article class=\"post-item\" style=\"background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 6px rgba(0,0,0,.04);\">
-        <header style=\"display:flex;align-items:center;gap:10px;margin-bottom:8px;\">
-          <div style=\"width:38px;height:38px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;\">${(name || 'U').charAt(0).toUpperCase()}</div>
-          <div style=\"flex:1;\">
-            <div style=\"font-weight:600;line-height:1.2;\">${combinedLine}</div>
-            <div style=\"font-size:12px;color:#666;margin-top:2px;\">${time}</div>
-          </div>
-        </header>
-        ${d.heading ? `<h4 style=\"margin:4px 0 10px;font-size:16px;line-height:1.3;color:#1e293b;\">${escapeHtml(d.heading)}</h4>` : ''}
-        <div style=\"white-space:pre-wrap;line-height:1.4;font-size:14px;\">${escapeHtml(d.post || d.content || '')}</div>
-        ${(media.length) ? `<div style=\\"margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;\\">${media.map(a => `<span style='background:#f1f5f9;border:1px solid #e2e8f0;padding:4px 8px;border-radius:14px;font-size:11px;color:#475569;'>${escapeHtml(a.name)}</span>`).join('')}</div>` : ''}
-      </article>`);
+        // Clone template
+        const node = tpl.content.cloneNode(true);
+        // Avatar
+        const avatarEl = node.querySelector('[data-author-avatar]');
+        if (avatarEl) avatarEl.textContent = (name || 'U').charAt(0).toUpperCase();
+        // Name
+        const nameEl = node.querySelector('[data-author-name]');
+        if (nameEl) nameEl.textContent = name;
+        // Meta
+        const metaEl = node.querySelector('[data-author-meta]');
+        if (metaEl) {
+            if (metaParts.length) {
+                metaEl.innerHTML = `| ${escapeHtml(metaParts.join(', '))}`;
+                metaEl.style.display = '';
+            } else {
+                metaEl.style.display = 'none';
+            }
+        }
+        // Time
+        const timeEl = node.querySelector('[data-post-time]');
+        if (timeEl) timeEl.textContent = time;
+        // Heading
+        const headingEl = node.querySelector('[data-post-heading]');
+        if (headingEl) {
+            if (d.heading) {
+                headingEl.textContent = d.heading;
+                headingEl.style.display = '';
+            } else {
+                headingEl.style.display = 'none';
+            }
+        }
+        // Content
+        const contentEl = node.querySelector('[data-post-content]');
+        if (contentEl) contentEl.textContent = d.post || d.content || '';
+        // Attachments
+        const attEl = node.querySelector('[data-post-attachments]');
+        if (attEl) {
+            if (media.length) {
+                attEl.innerHTML = media.map(a => `<span class='attachment-chip'>${escapeHtml(a.name)}</span>`).join('');
+                attEl.style.display = '';
+            } else {
+                attEl.style.display = 'none';
+            }
+        }
+        postsContainer.appendChild(node);
     });
-    postsContainer.innerHTML = items.join('\n');
 }
 
 async function submitPost() {
