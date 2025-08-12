@@ -14,6 +14,15 @@ import {
     setPersistence,
     browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp,
+    getDocs,
+    query,
+    orderBy
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 // IMPORTANT: public client config (safe to expose)
 const firebaseConfig = {
@@ -31,6 +40,8 @@ const app = initializeApp(firebaseConfig);
 try { getAnalytics(app); } catch { /* analytics optional (ignored in http / no consent) */ }
 const auth = getAuth(app);
 setPersistence(auth, browserLocalPersistence).catch(e=>console.warn('[Auth] setPersistence failed', e));
+// Firestore
+const db = getFirestore(app);
 
 // Provider
 const provider = new GoogleAuthProvider();
@@ -43,6 +54,9 @@ const $$ = sel => Array.from(document.querySelectorAll(sel));
 // ---- Sign-in / Sign-out handlers ----
 export async function signInWithGoogle() {
     console.log('[Auth] signInWithGoogle');
+    // Prevent duplicate popup requests
+    if (window.__diuSigningIn) return;
+    window.__diuSigningIn = true;
     try {
         await signInWithPopup(auth, provider);
         console.log('[Auth] Popup success', auth.currentUser?.uid);
@@ -55,11 +69,22 @@ export async function signInWithGoogle() {
             try { await signInWithRedirect(auth, provider); return; } catch(r2){ console.error('[Auth] Redirect also failed', r2); }
         }
         alert(`Google sign-in failed${code?` ( ${code} )`:''}. See console.`);
+    } finally {
+        window.__diuSigningIn = false;
     }
 }
 
 export async function signOutUser() {
-    try { await signOut(auth); } catch (e) { console.error('[Auth] signOut error', e); }
+    try {
+        await signOut(auth);
+    } catch (e) {
+        console.error('[Auth] signOut error', e);
+    } finally {
+        try {
+            localStorage.removeItem('user_info');
+            localStorage.removeItem('google_credential');
+        } catch {}
+    }
 }
 
 export function requireAuth(fn) {
@@ -136,11 +161,29 @@ function wireButtons(){
         if (!auth.currentUser){ e.preventDefault(); signInWithGoogle(); }
     });
     // Auto-tag known interactive IDs
-    ['#newPostBtn','#newPostBtn2','#post-job-btn'].forEach(sel=>{ const el=$(sel); if(el) el.classList.add('requires-auth'); });
+    // Only auto-tag general post buttons (avoid jobs button to prevent double handlers)
+    ['#newPostBtn','#newPostBtn2'].forEach(sel=>{ const el=$(sel); if(el) el.classList.add('requires-auth'); });
 }
 
 // ---- Auth state / Redirect result ----
-onAuthStateChanged(auth, user => { console.log('[Auth] state', user?.uid || null); updateUI(user); });
+onAuthStateChanged(auth, user => {
+    console.log('[Auth] state', user?.uid || null);
+    // Persist minimal user profile for pages that rely on localStorage
+    try {
+        if (user) {
+            const info = {
+                uid: user.uid,
+                displayName: user.displayName || null,
+                email: user.email || null,
+                photoURL: user.photoURL || null
+            };
+            localStorage.setItem('user_info', JSON.stringify(info));
+        } else {
+            localStorage.removeItem('user_info');
+        }
+    } catch {}
+    updateUI(user);
+});
 getRedirectResult(auth).then(r=>{ if(r?.user) console.log('[Auth] redirect success', r.user.uid); }).catch(e=> console.error('[Auth] redirect error', e));
 
 // ---- Init after DOM ready ----
@@ -148,3 +191,74 @@ if (document.readyState !== 'loading') wireButtons(); else document.addEventList
 
 // Expose for debug
 window.diuAuth = { auth, signInWithGoogle, signOutUser, requireAuth };
+
+// ---- Minimal Jobs API (Firestore) ----
+const ok = (data) => ({ ok: true, json: async () => data });
+const err = (message) => ({ ok: false, json: async () => ({ error: message }) });
+
+async function createJob(job){
+    try {
+        const payload = { ...job, posted_at: serverTimestamp() };
+        const docRef = await addDoc(collection(db, 'jobs'), payload);
+        return ok({ id: docRef.id });
+    } catch (e) {
+        console.error('[FirebaseAPI] createJob error', e);
+        return err(e?.message || 'createJob failed');
+    }
+}
+
+async function getJobs(){
+    try {
+        const q = query(collection(db, 'jobs'), orderBy('posted_at', 'desc'));
+        const snap = await getDocs(q);
+        const list = snap.docs.map(doc => {
+            const d = doc.data();
+            return {
+                id: doc.id,
+                ...d,
+                posted_at: d.posted_at?.toDate ? d.posted_at.toDate().toISOString() : new Date().toISOString()
+            };
+        });
+        return ok(list);
+    } catch (e) {
+        console.error('[FirebaseAPI] getJobs error', e);
+        return err(e?.message || 'getJobs failed');
+    }
+}
+
+window.FirebaseAPI = window.FirebaseAPI || {};
+window.FirebaseAPI.createJob = createJob;
+window.FirebaseAPI.getJobs = getJobs;
+
+// ---- Education Opportunities API (Firestore) ----
+async function createEducationOpportunity(data){
+    try {
+        const payload = { ...data, posted_at: serverTimestamp() };
+        const docRef = await addDoc(collection(db, 'education_opportunities'), payload);
+        return { id: docRef.id };
+    } catch (e) {
+        console.error('[FirebaseAPI] createEducationOpportunity error', e);
+        throw new Error(e?.message || 'createEducationOpportunity failed');
+    }
+}
+
+async function getEducationOpportunities(){
+    try {
+        const q = query(collection(db, 'education_opportunities'), orderBy('posted_at', 'desc'));
+        const snap = await getDocs(q);
+        return snap.docs.map(doc => {
+            const d = doc.data();
+            return {
+                id: doc.id,
+                ...d,
+                posted_at: d.posted_at?.toDate ? d.posted_at.toDate().toISOString() : new Date().toISOString()
+            };
+        });
+    } catch (e) {
+        console.error('[FirebaseAPI] getEducationOpportunities error', e);
+        throw new Error(e?.message || 'getEducationOpportunities failed');
+    }
+}
+
+window.FirebaseAPI.createEducationOpportunity = createEducationOpportunity;
+window.FirebaseAPI.getEducationOpportunities = getEducationOpportunities;

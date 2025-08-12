@@ -102,11 +102,11 @@ window.addEventListener('click', (e) => {
 // Share opportunity form submission
 document.getElementById('share-opportunity-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+    // Ensure current user is hydrated
     if (!currentUser) {
-        alert('Please log in to share an opportunity');
-        return;
+        try { const s = localStorage.getItem('user_info'); currentUser = s ? JSON.parse(s) : null; } catch {}
     }
+    if (!currentUser) { alert('Please log in to share an opportunity'); return; }
 
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;

@@ -14,6 +14,13 @@ window.onload = function() {
     loadJobs();
 };
 
+// Keep currentUser in sync if other scripts update localStorage (e.g., auth.js)
+window.addEventListener('storage', (e) => {
+    if (e.key === 'user_info') {
+        try { currentUser = e.newValue ? JSON.parse(e.newValue) : null; } catch {}
+    }
+});
+
 // Check if user is authenticated
 function checkAuthentication() {
     const storedUser = localStorage.getItem('user_info');
@@ -73,6 +80,7 @@ postJobBtn.addEventListener('click', async () => {
             // After login, check again
             const newUser = localStorage.getItem('user_info');
             if (!newUser) return; // If still not logged in, do nothing
+            try { currentUser = JSON.parse(newUser); } catch {}
         } catch (e) {
             alert('Google sign-in failed. Please try again.');
             return;
@@ -102,10 +110,14 @@ window.addEventListener('click', (e) => {
 document.getElementById('post-job-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    // Ensure currentUser is populated from localStorage if available
     if (!currentUser) {
-        alert('Please log in to post a job');
-        return;
+        try {
+            const storedUser = localStorage.getItem('user_info');
+            currentUser = storedUser ? JSON.parse(storedUser) : null;
+        } catch {}
     }
+    if (!currentUser) { alert('Please log in to post a job'); return; }
 
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
