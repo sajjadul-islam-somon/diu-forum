@@ -134,19 +134,20 @@ function updateUI(user){
                 navUserIcon.style.display='inline-block';
             }
         }
-        if (!isHome) signInBtns.forEach(b=> b.style.display='none');
-        signOutBtns.forEach(b=> b.style.display='inline-block');
-        if (dropdownLogin) dropdownLogin.style.display='none';
-        if (dropdownLogout) dropdownLogout.style.display='block';
+    if (!isHome) signInBtns.forEach(b=> b.style.display='none');
+    signOutBtns.forEach(b=> b.style.display='inline-block');
+    // Use CSS class to avoid conflicts with .hidden !important
+    if (dropdownLogin) { dropdownLogin.classList.add('hidden'); dropdownLogin.style.display=''; }
+    if (dropdownLogout) { dropdownLogout.classList.remove('hidden'); dropdownLogout.style.display=''; }
     } else {
         nameEls.forEach(el=> el && (el.textContent = 'Guest User'));
     avatarEls.forEach(el=>{ if(!el) return; el.style.backgroundImage=''; el.textContent='U'; });
     if (avatarImg && avatarLetter){ avatarImg.style.display='none'; avatarLetter.style.display='block'; avatarLetter.textContent='U'; }
     if (navAvatarImg && navUserIcon){ navAvatarImg.style.display='none'; navUserIcon.style.display='inline-block'; }
-        if (!isHome) signInBtns.forEach(b=> b.style.display='inline-block');
-        signOutBtns.forEach(b=> b.style.display='none');
-        if (dropdownLogin) dropdownLogin.style.display='block';
-        if (dropdownLogout) dropdownLogout.style.display='none';
+    if (!isHome) signInBtns.forEach(b=> b.style.display='inline-block');
+    signOutBtns.forEach(b=> b.style.display='none');
+    if (dropdownLogin) { dropdownLogin.classList.remove('hidden'); dropdownLogin.style.display=''; }
+    if (dropdownLogout) { dropdownLogout.classList.add('hidden'); dropdownLogout.style.display=''; }
     }
 }
 

@@ -30,18 +30,17 @@
             </div>
             <div class="user-menu-card">
                 <div class="user-menu">
-                    <div class="user-profile" onclick="toggleDropdown()"
-                        style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <div class="user-profile" onclick="toggleDropdown()">
                         <span id="userName">Guest User</span>
-                        <img id="navUserAvatarImg" alt="User" style="width:28px;height:28px;border-radius:50%;object-fit:cover;display:none;" />
-                        <i id="navUserIcon" class="fas fa-user-circle" style="font-size:24px;line-height:1;"></i>
+                        <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
+                        <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
                     </div>
                     <div class="dropdown" id="userDropdown">
                         <div id="dropdownLogin">
-                            <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i>Login</a>
+                            <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
                         </div>
-                        <div id="dropdownLogout" style="display:none;">
-                            <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i>Logout</a>
+                        <div id="dropdownLogout" class="hidden">
+                            <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
                         </div>
                         <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
                         <a href="settings.html#help"><i class="fas fa-info-circle"></i>Help</a>
