@@ -1304,3 +1304,29 @@ body {
 .post-attachments { margin-top:10px;display:flex;flex-wrap:wrap;gap:6px; }
 .attachment-chip { background:#f1f5f9;border:1px solid #e2e8f0;padding:4px 10px;border-radius:16px;font-size:0.65rem;color:#475569;font-weight:500; }
 .attachment-chip:hover { background:#e2e8f0; }
+
+/* === Post Creation Modal (moved from inline styles) === */
+.modal-overlay { display:none; position:fixed; inset:0; backdrop-filter:blur(2px); background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+.post-modal-card { background:#fff; min-width:360px; max-width:560px; width:90%; padding:22px 24px 26px; border-radius:14px; box-shadow:0 8px 30px -4px rgba(0,0,0,.25); font-family:system-ui, sans-serif; position:relative; }
+.modal-title { margin:0 0 4px; }
+.post-modal-userinfo { font-size:13px; color:#555; margin-bottom:14px; }
+.post-modal-body { display:flex; flex-direction:column; gap:14px; }
+.form-field { display:flex; flex-direction:column; gap:6px; }
+.form-field label { font-size:13px; font-weight:600; color:#374151; }
+.required { color:#dc2626; }
+.pm-input { padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; font-size:14px; }
+.pm-textarea { width:100%; resize:vertical; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-family:inherit; font-size:14px; line-height:1.4; }
+.post-modal-attachments { border:1px dashed #cbd5e1; border-radius:10px; padding:14px 14px 10px; display:flex; flex-direction:column; gap:10px; }
+.attachment-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.pm-attach-btn { background:#f1f5f9; border:1px solid #d1d5db; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; gap:6px; }
+.pm-attach-btn i { color:#2563eb; }
+.pm-note { font-size:11px; color:#64748b; }
+.hidden-input { display:none; }
+.attachment-list { display:none; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:8px 10px; max-height:140px; overflow:auto; font-size:12px; line-height:1.4; }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
+.pm-btn { padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; border:1px solid transparent; }
+.pm-btn-secondary { background:#f1f5f9; border-color:#d1d5db; }
+.pm-btn-primary { background:#2563eb; color:#fff; }
+.post-error { color:#c00; font-size:13px; margin-top:10px; display:none; }
+.profile-incomplete { display:none; margin-top:12px; font-size:12px; color:#b45309; background:#fff7ed; border:1px solid #fed7aa; padding:8px 10px; border-radius:8px; }
+.link-accent { color:#c2410c; font-weight:600; }
