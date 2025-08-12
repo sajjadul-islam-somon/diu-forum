@@ -101,7 +101,18 @@ function renderPosts(snapshot) {
         const node = tpl.content.cloneNode(true);
         // Avatar
         const avatarEl = node.querySelector('[data-author-avatar]');
-        if (avatarEl) avatarEl.textContent = (name || 'U').charAt(0).toUpperCase();
+        if (avatarEl) {
+            const letter = (name || 'U').charAt(0).toUpperCase();
+            if (d.photoURL) {
+                avatarEl.style.backgroundImage = `url(${d.photoURL})`;
+                avatarEl.style.backgroundSize = 'cover';
+                avatarEl.style.backgroundPosition = 'center';
+                avatarEl.textContent = '';
+            } else {
+                avatarEl.style.backgroundImage = '';
+                avatarEl.textContent = letter;
+            }
+        }
         // Name
         const nameEl = node.querySelector('[data-author-name]');
         if (nameEl) nameEl.textContent = name;
@@ -157,7 +168,7 @@ function renderPosts(snapshot) {
             const otherHtml = isUrl ? `<a href="${safe}" target="_blank" rel="noopener">${safe}</a>` : safe;
             rows.push(`<div class="contact-row"><i class="fas fa-address-card"></i> ${otherHtml}</div>`);
         }
-        // Do not show inline contacts on the card; Contact button + modal is sufficient
+        // Contact button + modal
         if (contactsEl) {
             contactsEl.style.display = 'none';
         }
@@ -199,6 +210,7 @@ async function submitPost() {
             time: serverTimestamp(),
             authorId: user.uid,
             name: displayName,
+            photoURL: user.photoURL || null,
             role: p.role || null,
             dept,
             institution: p.institution || null,
@@ -216,7 +228,6 @@ async function submitPost() {
         console.error('[Posts] Failed to add post', e);
         let msg = 'Failed to publish. Try again.';
         if (e && (e.code || e.message)) {
-            // Expose limited detail for debugging; can be simplified later
             msg += ` (${e.code || e.message})`;
         }
         postErr.textContent = msg;
