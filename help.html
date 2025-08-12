@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Help & Support - DIU Forum</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="blog.css" />
+    <link rel="icon" type="image/x-icon" href="assets/diu-logo.png" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand-card">
+                <div class="nav-brand">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>DIU Forum</span>
+                </div>
+            </div>
+            <div class="nav-menu-card">
+                <div class="nav-menu">
+                    <ul class="nav-links">
+                        <li class="nav-item"><a href="blog.html">Feeds</a></li>
+                        <li class="nav-item"><a href="jobs.html">Jobs</a></li>
+                        <li class="nav-item"><a href="studies.html">H. Studies</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="user-menu-card">
+                <div class="user-menu">
+                    <div class="user-profile" onclick="toggleDropdown()">
+                        <span id="userName">Guest User</span>
+                        <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
+                        <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
+                    </div>
+                    <div class="dropdown" id="userDropdown">
+                        <div id="dropdownLogin">
+                            <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                        </div>
+                        <div id="dropdownLogout" class="hidden">
+                            <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                        <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                        <a href="help.html" class="active"><i class="fas fa-info-circle"></i>Help</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main style="max-width:900px;margin:32px auto;padding:0 16px;">
+        <section
+            style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+            <h1 style="margin:0 0 8px 0;font-size:24px;">Help & Support</h1>
+            <p style="margin:0 0 16px 0;color:#64748b;">Quick answers to common questions.</p>
+            <div style="display:grid;grid-template-columns:1fr;gap:14px;">
+                <div style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;">
+                    <h3 style="margin:0 0 6px 0;font-size:16px;">How do I change my avatar?</h3>
+                    <p style="margin:0;color:#475569;">Update your picture in your Google Account. Re‑sign or refresh to
+                        sync.</p>
+                </div>
+                <div style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;">
+                    <h3 style="margin:0 0 6px 0;font-size:16px;">Why am I asked to login again?</h3>
+                    <p style="margin:0;color:#475569;">Sessions may expire or storage was cleared. Sign in again to
+                        continue.</p>
+                </div>
+                <div style="border:1px solid #e5e7eb;border-radius:10px;padding:16px;">
+                    <h3 style="margin:0 0 6px 0;font-size:16px;">Who can see my posts?</h3>
+                    <p style="margin:0;color:#475569;">Currently all signed‑in users. Future updates may add more
+                        controls.</p>
+                </div>
+            </div>
+            <div style="margin-top:16px;color:#64748b;font-size:14px;">
+                Need more help? Email: <a href="mailto:support@example.com">support@example.com</a>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="auth.js"></script>
+</body>
+
+</html>

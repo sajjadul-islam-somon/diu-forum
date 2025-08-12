@@ -15,7 +15,10 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand-card">
-                <div class="nav-brand"><i class="fas fa-graduation-cap"></i><span>DIU Forum</span></div>
+                <div class="nav-brand">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>DIU Forum</span>
+                </div>
             </div>
             <div class="nav-menu-card">
                 <div class="nav-menu">
@@ -28,24 +31,26 @@
             </div>
             <div class="user-menu-card">
                 <div class="user-menu">
-                    <div class="user-profile" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <div class="user-profile" onclick="toggleDropdown()">
                         <span id="userName">Guest User</span>
-                        <img id="navUserAvatarImg" alt="User"
-                            style="width:32px;height:32px;border-radius:50%;object-fit:cover;display:none;" />
-                        <i id="navUserIcon" class="fas fa-user-circle" style="font-size:32px;line-height:1;"></i>
+                        <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
+                        <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
                     </div>
                     <div class="dropdown" id="userDropdown">
-                        <div id="dropdownLogin"><a href="#" class="sign-in-btn"><i
-                                    class="fas fa-sign-in-alt"></i>Login</a></div>
-                        <div id="dropdownLogout" style="display:none;"><a href="#" class="sign-out-btn"><i
-                                    class="fas fa-sign-out-alt"></i>Logout</a></div>
-                        <a href="settings.html" class="active"><i class="fas fa-cog"></i>Settings</a>
-                        <a href="settings.html#help"><i class="fas fa-info-circle"></i>Help</a>
+                        <div id="dropdownLogin">
+                            <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                        </div>
+                        <div id="dropdownLogout" class="hidden">
+                            <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                        <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                        <a href="help.html"><i class="fas fa-info-circle"></i>Help</a>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
+
 
     <div class="settings-wrapper">
         <aside class="settings-sidebar">
@@ -140,21 +145,7 @@
                 </ul>
             </section>
 
-            <!-- Help -->
-            <section id="help" class="settings-section">
-                <h2>Help & Support</h2>
-                <p class="desc">FAQs and guidance. More resources coming soon.</p>
-                <dl class="help-faq">
-                    <dt>How do I change my avatar?</dt>
-                    <dd>Update your picture in your Google Account. Re-sign or refresh to sync.</dd>
-                    <dt>Why am I asked to login again?</dt>
-                    <dd>Sessions may expire or your browser cleared storage. Just sign in again.</dd>
-                    <dt>Who can see my posts?</dt>
-                    <dd>All signed-in users currently. Future updates may add granular visibility.</dd>
-                </dl>
-                <p style="margin-top:18px;font-size:13px;color:#64748b;">Need more help? Email: <a
-                        href="mailto:support@example.com">support@example.com</a></p>
-            </section>
+            
         </main>
     </div>
     <a class="anchor-top" href="#top" title="Back to top"><i class="fas fa-arrow-up"></i></a>
