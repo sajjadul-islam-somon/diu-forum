@@ -140,8 +140,17 @@
                 <h4 class="post-title" data-post-heading style="display:none;"></h4>
                 <div class="post-content" data-post-content></div>
                 <div class="post-attachments" data-post-attachments style="display:none;"></div>
+                <div class="post-contacts" data-post-contacts style="display:none;"></div>
+                <div class="post-footer">
+                    <button class="contact-btn" data-contact-btn style="display:none;">
+                        <i class="fas fa-address-book"></i>
+                        <span>Contact</span>
+                    </button>
+                </div>
             </article>
         </template>
+
+
         <!-- Right Sidebar -->
         <aside class="right-sidebar">
             <!-- Trending Topics -->
@@ -238,6 +247,16 @@
                     <input id="postVideos" type="file" accept="video/*" multiple class="hidden-input" />
                     <div id="attachmentList" class="attachment-list"></div>
                 </div>
+                <!-- Contacts Section -->
+                <div class="form-field">
+                    <label for="contactEmail">Contact Email</label>
+                    <input id="contactEmail" class="pm-input" type="email" placeholder="you@example.com" readonly />
+                    <div class="pm-note">This email will be shown on your post so others can reach you.</div>
+                </div>
+                <div class="form-field">
+                    <label for="contactOther">Other Contact (optional)</label>
+                    <input id="contactOther" class="pm-input" type="text" maxlength="160" placeholder="Phone number, Telegram link, Facebook, LinkedIn, etc." />
+                </div>
             </div>
             <div class="modal-actions">
                 <button id="cancelPostBtn" class="pm-btn pm-btn-secondary">Cancel</button>
@@ -246,6 +265,16 @@
             <div id="postError" class="post-error"></div>
             <div id="profileIncompleteMsg" class="profile-incomplete">
                 Complete your profile (Display Name, Role, Department, Institution) in <a href="settings.html" class="link-accent">Settings</a> to post.
+            </div>
+        </div>
+    </div>
+    <!-- Contact Info Modal -->
+    <div id="contactModal" class="modal-overlay">
+        <div class="post-modal-card contact-card">
+            <h3 class="modal-title">Contact Info</h3>
+            <div id="contactDetails" class="post-contacts" style="margin-top:8px;"></div>
+            <div class="modal-actions">
+                <button id="closeContactBtn" class="pm-btn pm-btn-secondary">Close</button>
             </div>
         </div>
     </div>

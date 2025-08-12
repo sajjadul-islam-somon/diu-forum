@@ -18,6 +18,10 @@ const attachmentList = document.getElementById('attachmentList');
 const profileIncompleteMsg = document.getElementById('profileIncompleteMsg');
 const postErr = document.getElementById('postError');
 const postAuthorNameEl = document.getElementById('postAuthorName');
+const contactEmailEl = document.getElementById('contactEmail');
+const contactOtherEl = document.getElementById('contactOther');
+const contactModal = document.getElementById('contactModal');
+const contactDetailsEl = document.getElementById('contactDetails');
 
 function profileData() { try { return JSON.parse(localStorage.getItem('diuProfile') || '{}'); } catch { return {}; } }
 function isProfileComplete() { const p = profileData(); return !!(p.displayName && p.role && p.department && p.institution); }
@@ -30,6 +34,9 @@ function openModal() {
     postContentEl.value = '';
     if (postHeadingEl) postHeadingEl.value = '';
     if (attachmentList) { attachmentList.innerHTML = ''; attachmentList.style.display = 'none'; }
+    // Populate Contacts section
+    if (contactEmailEl) contactEmailEl.value = auth.currentUser?.email || '';
+    if (contactOtherEl) contactOtherEl.value = '';
     postAuthorNameEl.textContent = profileData().displayName || auth.currentUser.displayName || auth.currentUser.email || 'You';
     modal.style.display = 'flex';
     (postHeadingEl || postContentEl).focus();
@@ -110,6 +117,39 @@ function renderPosts(snapshot) {
                 attEl.style.display = 'none';
             }
         }
+        // Contacts
+        const contactsEl = node.querySelector('[data-post-contacts]');
+        const contactBtn = node.querySelector('[data-contact-btn]');
+        const contacts = d.contacts || null;
+        const rows = [];
+        if (contacts?.email) {
+            const em = escapeHtml(contacts.email);
+            rows.push(`<div class="contact-row"><i class="fas fa-envelope"></i> <a href="mailto:${em}">${em}</a></div>`);
+        }
+        const other = (contacts?.other || '').trim();
+        if (other) {
+            const isUrl = /^https?:\/\//i.test(other);
+            const safe = escapeHtml(other);
+            const otherHtml = isUrl ? `<a href="${safe}" target="_blank" rel="noopener">${safe}</a>` : safe;
+            rows.push(`<div class="contact-row"><i class="fas fa-address-card"></i> ${otherHtml}</div>`);
+        }
+        // Do not show inline contacts on the card; Contact button + modal is sufficient
+        if (contactsEl) {
+            contactsEl.style.display = 'none';
+        }
+        if (contactBtn) {
+            if (rows.length) {
+                contactBtn.style.display = 'inline-flex';
+                contactBtn.addEventListener('click', () => {
+                    if (contactDetailsEl && contactModal) {
+                        contactDetailsEl.innerHTML = rows.join('');
+                        contactModal.style.display = 'flex';
+                    }
+                });
+            } else {
+                contactBtn.style.display = 'none';
+            }
+        }
         postsContainer.appendChild(node);
     });
 }
@@ -130,6 +170,7 @@ async function submitPost() {
         Array.from(videosInput?.files || []).forEach(f => att.push({ type: 'video', name: f.name, size: f.size }));
         const displayName = p.displayName || user.displayName || user.email || 'User';
         const dept = p.department || null;
+        const otherContact = (contactOtherEl?.value || '').trim();
         const doc = {
             time: serverTimestamp(),
             authorId: user.uid,
@@ -139,7 +180,11 @@ async function submitPost() {
             institution: p.institution || null,
             heading,
             post: content,
-            media: att
+            media: att,
+            contacts: {
+                email: user.email || null,
+                other: otherContact || null
+            }
         };
         await addDoc(postsCol, doc);
         closeModal();
@@ -172,6 +217,9 @@ function attachListeners() {
     videosInput?.addEventListener('change', refreshAttachmentList);
     window.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') closeModal(); });
     modal?.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    // Contact modal close
+    document.getElementById('closeContactBtn')?.addEventListener('click', e => { e.preventDefault(); if (contactModal) contactModal.style.display = 'none'; });
+    contactModal?.addEventListener('click', e => { if (e.target === contactModal) contactModal.style.display = 'none'; });
 }
 
 let fallbackTried = false;
