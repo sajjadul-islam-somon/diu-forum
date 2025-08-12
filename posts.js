@@ -23,8 +23,17 @@ const contactOtherEl = document.getElementById('contactOther');
 const contactModal = document.getElementById('contactModal');
 const contactDetailsEl = document.getElementById('contactDetails');
 
-function profileData() { try { return JSON.parse(localStorage.getItem('diuProfile') || '{}'); } catch { return {}; } }
-function isProfileComplete() { const p = profileData(); return !!(p.displayName && p.role && p.department && p.institution); }
+function profileData() {
+    try {
+        return JSON.parse(localStorage.getItem('diuProfile') || '{}');
+    } catch {
+        return {};
+    }
+}
+
+function isProfileComplete() {
+    const p = profileData(); return !!(p.displayName && p.role && p.department && p.institution);
+}
 
 function openModal() {
     if (!auth.currentUser) return;
@@ -33,7 +42,9 @@ function openModal() {
     const tpl = document.getElementById('postTemplate');
     postContentEl.value = '';
     if (postHeadingEl) postHeadingEl.value = '';
-    if (attachmentList) { attachmentList.innerHTML = ''; attachmentList.style.display = 'none'; }
+    if (attachmentList) {
+        attachmentList.innerHTML = ''; attachmentList.style.display = 'none';
+    }
     // Populate Contacts section
     if (contactEmailEl) contactEmailEl.value = auth.currentUser?.email || '';
     if (contactOtherEl) contactOtherEl.value = '';
@@ -44,18 +55,31 @@ function openModal() {
     if (!isProfileComplete()) {
         if (profileIncompleteMsg) profileIncompleteMsg.style.display = 'block';
         if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = .6; }
-    } else if (submitBtn) { submitBtn.disabled = false; submitBtn.style.opacity = 1; }
+    } else if (submitBtn) {
+        submitBtn.disabled = false; submitBtn.style.opacity = 1;
+    }
 }
 
-function closeModal() { modal.style.display = 'none'; }
+function closeModal() {
+    modal.style.display = 'none';
+}
 
-function renderLoading() { if (!postsContainer) return; postsContainer.innerHTML = `<div style="padding:32px;text-align:center;color:#555;">Loading posts...</div>`; }
+function renderLoading() {
+    if (!postsContainer) return; postsContainer.innerHTML = `<div style="padding:32px;text-align:center;color:#555;">Loading posts...</div>`;
+}
 
-function escapeHtml(str) { return str.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c])); }
-function capFirst(s) { return (s || '').charAt(0).toUpperCase() + (s || '').slice(1); }
+function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]));
+}
+
+function capFirst(s) {
+    return (s || '').charAt(0).toUpperCase() + (s || '').slice(1);
+}
 
 function renderPosts(snapshot) {
-    if (!postsContainer) return;
+    if (!postsContainer)
+        return;
+
     if (snapshot.empty) {
         postsContainer.innerHTML = `<div style="padding:40px;text-align:center;color:#666;">No posts yet. Be the first to share something! ✨</div>`;
         return;
@@ -245,6 +269,12 @@ function subscribePosts() {
     });
 }
 
-if (document.readyState !== 'loading') { attachListeners(); subscribePosts(); } else { document.addEventListener('DOMContentLoaded', () => { attachListeners(); subscribePosts(); }); }
+if (document.readyState !== 'loading') {
+    attachListeners(); subscribePosts();
+} else {
+    document.addEventListener('DOMContentLoaded', () => { attachListeners(); subscribePosts(); });
+}
 
-window.postsModule = { submitPost };
+window.postsModule = {
+    submitPost
+};
