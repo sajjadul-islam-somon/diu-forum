@@ -35,17 +35,14 @@ body {
 .nav-menu-card,
 .user-menu-card {
     display: flex;
-    /* keep contents horizontal */
     align-items: center;
-    /* vertically align inside each cell */
 }
 
 .nav-menu-card {
     justify-content: center;
-    /* center menu items in middle column */
 }
 
-/* Nav-Left: Logo/Brand */
+/* Nav-Left: Logo */
 .nav-brand {
     display: flex;
     align-items: center;
@@ -54,7 +51,6 @@ body {
     font-weight: 700;
     color: white;
     white-space: nowrap;
-    /* prevent breaking */
 }
 
 /* Nav-Middle: Menu */
@@ -101,7 +97,6 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    /* prevents long names from breaking layout */
 }
 
 .user-profile {
@@ -1453,6 +1448,7 @@ body {
     justify-content: flex-end;
     margin-top: 10px;
 }
+
 .contact-btn {
     display: inline-flex;
     align-items: center;
@@ -1466,14 +1462,20 @@ body {
     font-size: 0.85rem;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
-.contact-btn i { color: #2563eb; }
+
+.contact-btn i {
+    color: #2563eb;
+}
+
 .contact-btn:hover {
     background: #f1f5f9;
     border-color: #d1d5db;
 }
 
 /* Smaller variant for contact modal */
-.contact-card { max-width: 440px; }
+.contact-card {
+    max-width: 440px;
+}
 
 /* Post contacts block */
 .post-contacts {
@@ -1483,19 +1485,23 @@ body {
     color: #475569;
     font-size: 0.85rem;
 }
+
 .post-contacts .contact-row {
     display: flex;
     align-items: center;
     gap: 8px;
     margin: 4px 0;
 }
+
 .post-contacts .contact-row i {
     color: #64748b;
 }
+
 .post-contacts a {
     color: #2563eb;
     text-decoration: none;
 }
+
 .post-contacts a:hover {
     text-decoration: underline;
 }
