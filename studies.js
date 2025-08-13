@@ -185,7 +185,6 @@ function displayOpportunities(opportunities) {
                 <span class="description-text">${opportunity.description}</span>
                 <button class="see-more-btn" style="display:none;">...see more</button>
             </div>
-            <div class="opportunity-poster">Posted by ${opportunity.user_type ? opportunity.user_type : 'User'}</div>
             <div class="opportunity-details">
                 ${opportunity.deadline ? `
                     <div class="detail-item">
