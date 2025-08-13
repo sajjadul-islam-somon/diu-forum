@@ -198,8 +198,8 @@ function displayJobs(jobs) {
         const shortDescription = isLongDescription ? 
             job.description.substring(0, maxLength) + '...' : 
             job.description;
-        // Show user type (student, alumni, faculty, etc.)
-        const posterType = job.user_type ? job.user_type : 'User';
+    // Prefer the uploader's name; fallback gracefully
+    const postedByName = job.poster_name || job.poster || job.posterName || job.posted_by || (job.user_type ? job.user_type : 'User');
         return `
         <div class="job-card">
             <div class="job-header">
@@ -232,7 +232,7 @@ function displayJobs(jobs) {
                 </div>
             ` : ''}
             <div class="job-footer">
-                <div class="job-poster">Posted by ${posterType}</div>
+                <div class="job-poster">Posted by ${postedByName}</div>
                 <div class="job-actions">
                     <button class="save-btn">Save</button>
                     ${job.application_url ? 
