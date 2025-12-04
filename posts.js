@@ -1,14 +1,11 @@
-// Firestore post handling with heading, attachments & profile completeness gate
-import { getApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+// Replace Firestore usage with Supabase client (window.supabaseClient)
 
-const app = getApp();
-const auth = getAuth(app);
-const db = getFirestore(app);
+const supabase = window.supabaseClient;
+if (!supabase) console.warn('[Posts] supabase client not found. Include UMD + config.js in <head>.');
 
-const postsCol = collection(db, 'posts');
 const postsContainer = document.getElementById('postsContainer');
+const postTemplate = document.getElementById('postTemplate');
+const commentsTemplate = document.getElementById('commentsTemplate');
 const modal = document.getElementById('postModal');
 const postContentEl = document.getElementById('postContent');
 const postHeadingEl = document.getElementById('postHeading');
@@ -25,267 +22,390 @@ const contactDetailsEl = document.getElementById('contactDetails');
 
 function profileData() {
     try {
-        return JSON.parse(localStorage.getItem('diuProfile') || '{}');
-    } catch {
-        return {};
-    }
+        // read legacy `user_profile` (older code) and new `diuProfile` (settings.html)
+        const a = JSON.parse(localStorage.getItem('user_profile') || 'null');
+        const b = JSON.parse(localStorage.getItem('diuProfile') || 'null');
+        const stored = Object.assign({}, b || {}, a || {});
+        // normalize common keys
+        if (!stored.displayName && stored.display_name) stored.displayName = stored.display_name;
+        return stored || {};
+    } catch (_) { return {}; }
 }
 
 function isProfileComplete() {
-    const p = profileData(); return !!(p.displayName && p.role && p.department && p.institution);
+    const p = profileData();
+    return !!(p.displayName && p.department && p.role);
 }
 
-function openModal() {
-    if (!auth.currentUser) return;
-    postErr.style.display = 'none';
-    profileIncompleteMsg && (profileIncompleteMsg.style.display = 'none');
-    const tpl = document.getElementById('postTemplate');
-    postContentEl.value = '';
-    if (postHeadingEl) postHeadingEl.value = '';
-    if (attachmentList) {
-        attachmentList.innerHTML = ''; attachmentList.style.display = 'none';
-    }
-    // Populate Contacts section
-    if (contactEmailEl) contactEmailEl.value = auth.currentUser?.email || '';
-    if (contactOtherEl) contactOtherEl.value = '';
-    postAuthorNameEl.textContent = profileData().displayName || auth.currentUser.displayName || auth.currentUser.email || 'You';
-    modal.style.display = 'flex';
-    (postHeadingEl || postContentEl).focus();
-    const submitBtn = document.getElementById('submitPostBtn');
+// Submit post using Supabase
+async function submitPostHandler(e) {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    postErr.textContent = '';
     if (!isProfileComplete()) {
-        if (profileIncompleteMsg) profileIncompleteMsg.style.display = 'block';
-        if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = .6; }
-    } else if (submitBtn) {
-        submitBtn.disabled = false; submitBtn.style.opacity = 1;
-    }
-}
-
-function closeModal() {
-    modal.style.display = 'none';
-}
-
-function renderLoading() {
-    if (!postsContainer) return; postsContainer.innerHTML = `<div style="padding:32px;text-align:center;color:#555;">Loading posts...</div>`;
-}
-
-function escapeHtml(str) {
-    return str.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]));
-}
-
-function capFirst(s) {
-    return (s || '').charAt(0).toUpperCase() + (s || '').slice(1);
-}
-
-function renderPosts(snapshot) {
-    if (!postsContainer)
-        return;
-
-    if (snapshot.empty) {
-        postsContainer.innerHTML = `<div style="padding:40px;text-align:center;color:#666;">No posts yet. Be the first to share something! ✨</div>`;
+        profileIncompleteMsg.style.display = 'block';
         return;
     }
-    postsContainer.innerHTML = '';
-    const tpl = document.getElementById('postTemplate');
-    snapshot.forEach(docRef => {
-        const d = docRef.data();
-        const ts = d.time || d.createdAt;
-        const time = ts?.toDate ? ts.toDate().toLocaleString() : '';
-        const name = d.name || d.authorName || 'Unknown';
-        const dept = d.dept || d.department;
-        const media = d.media || d.attachments || [];
-        const metaParts = [];
-        if (d.role) metaParts.push(capFirst(d.role));
-        if (dept) metaParts.push(String(dept).toUpperCase());
-        if (d.institution) metaParts.push(d.institution);
-        // Clone template
-        const node = tpl.content.cloneNode(true);
-        // Avatar
-        const avatarEl = node.querySelector('[data-author-avatar]');
-        if (avatarEl) {
-            const letter = (name || 'U').charAt(0).toUpperCase();
-            if (d.photoURL) {
-                avatarEl.style.backgroundImage = `url(${d.photoURL})`;
-                avatarEl.style.backgroundSize = 'cover';
-                avatarEl.style.backgroundPosition = 'center';
-                avatarEl.textContent = '';
-            } else {
-                avatarEl.style.backgroundImage = '';
-                avatarEl.textContent = letter;
-            }
-        }
-        // Name
-        const nameEl = node.querySelector('[data-author-name]');
-        if (nameEl) nameEl.textContent = name;
-        // Meta
-        const metaEl = node.querySelector('[data-author-meta]');
-        if (metaEl) {
-            if (metaParts.length) {
-                metaEl.innerHTML = `| ${escapeHtml(metaParts.join(', '))}`;
-                metaEl.style.display = '';
-            } else {
-                metaEl.style.display = 'none';
-            }
-        }
-        // Time
-        const timeEl = node.querySelector('[data-post-time]');
-        if (timeEl) timeEl.textContent = time;
-        // Heading
-        const headingEl = node.querySelector('[data-post-heading]');
-        if (headingEl) {
-            if (d.heading) {
-                headingEl.textContent = d.heading;
-                headingEl.style.display = '';
-            } else {
-                headingEl.style.display = 'none';
-            }
-        }
-        // Content
-        const contentEl = node.querySelector('[data-post-content]');
-        if (contentEl) contentEl.textContent = d.post || d.content || '';
-        // Attachments
-        const attEl = node.querySelector('[data-post-attachments]');
-        if (attEl) {
-            if (media.length) {
-                attEl.innerHTML = media.map(a => `<span class='attachment-chip'>${escapeHtml(a.name)}</span>`).join('');
-                attEl.style.display = '';
-            } else {
-                attEl.style.display = 'none';
-            }
-        }
-        // Contacts
-        const contactsEl = node.querySelector('[data-post-contacts]');
-        const contactBtn = node.querySelector('[data-contact-btn]');
-        const contacts = d.contacts || null;
-        const rows = [];
-        if (contacts?.email) {
-            const em = escapeHtml(contacts.email);
-            rows.push(`<div class="contact-row"><i class="fas fa-envelope"></i> <a href="mailto:${em}">${em}</a></div>`);
-        }
-        const other = (contacts?.other || '').trim();
-        if (other) {
-            const isUrl = /^https?:\/\//i.test(other);
-            const safe = escapeHtml(other);
-            const otherHtml = isUrl ? `<a href="${safe}" target="_blank" rel="noopener">${safe}</a>` : safe;
-            rows.push(`<div class="contact-row"><i class="fas fa-address-card"></i> ${otherHtml}</div>`);
-        }
-        // Contact button + modal
-        if (contactsEl) {
-            contactsEl.style.display = 'none';
-        }
-        if (contactBtn) {
-            if (rows.length) {
-                contactBtn.style.display = 'inline-flex';
-                contactBtn.addEventListener('click', () => {
-                    if (contactDetailsEl && contactModal) {
-                        contactDetailsEl.innerHTML = rows.join('');
-                        contactModal.style.display = 'flex';
-                    }
-                });
-            } else {
-                contactBtn.style.display = 'none';
-            }
-        }
-        postsContainer.appendChild(node);
-    });
-}
-
-async function submitPost() {
-    if (!auth.currentUser) return;
-    if (!isProfileComplete()) {
-        postErr.textContent = 'Complete your profile first.'; postErr.style.display = 'block'; return;
-    }
-    const heading = (postHeadingEl?.value || '').trim();
+    const heading = postHeadingEl.value.trim();
     const content = postContentEl.value.trim();
-    if (!heading) { postErr.textContent = 'Heading is required.'; postErr.style.display = 'block'; return; }
-    if (!content) { postErr.textContent = 'Main post content is required.'; postErr.style.display = 'block'; return; }
-    postErr.style.display = 'none';
+    if (!content && !heading) {
+        postErr.textContent = 'Post content is empty.';
+        return;
+    }
+
     try {
-        const user = auth.currentUser; const p = profileData(); const att = [];
-        Array.from(imagesInput?.files || []).forEach(f => att.push({ type: 'image', name: f.name, size: f.size }));
-        Array.from(videosInput?.files || []).forEach(f => att.push({ type: 'video', name: f.name, size: f.size }));
-        const displayName = p.displayName || user.displayName || user.email || 'User';
-        const dept = p.department || null;
-        const otherContact = (contactOtherEl?.value || '').trim();
-        const doc = {
-            time: serverTimestamp(),
-            authorId: user.uid,
-            name: displayName,
-            photoURL: user.photoURL || null,
-            role: p.role || null,
-            dept,
-            institution: p.institution || null,
-            heading,
-            post: content,
-            media: att,
-            contacts: {
-                email: user.email || null,
-                other: otherContact || null
+        const s = await supabase.auth.getSession();
+        const user = s?.data?.session?.user ?? null;
+        const p = profileData();
+        const media = [];
+        Array.from(imagesInput?.files || []).forEach(f => media.push({ type: 'image', name: f.name, size: f.size }));
+        Array.from(videosInput?.files || []).forEach(f => media.push({ type: 'video', name: f.name, size: f.size }));
+
+        // Insert using columns that exist in the DB schema: title, body, metadata
+        const row = {
+            title: heading || null,
+            body: content || null,
+            metadata: {
+                media,
+                author_name: p.displayName || user?.user_metadata?.full_name || null,
+                author_photo: user?.user_metadata?.avatar_url || null,
+                role: p.role || null,
+                department: p.department || null,
+                institution: p.institution || null,
+                contacts: {
+                    email: contactEmailEl?.value || user?.email || null,
+                    other: contactOtherEl?.value || null
+                }
             }
         };
-        await addDoc(postsCol, doc);
-        closeModal();
-    } catch (e) {
-        console.error('[Posts] Failed to add post', e);
-        let msg = 'Failed to publish. Try again.';
-        if (e && (e.code || e.message)) {
-            msg += ` (${e.code || e.message})`;
-        }
-        postErr.textContent = msg;
-        postErr.style.display = 'block';
+
+        const { data, error } = await supabase.from('posts').insert([row]).select().single();
+        if (error) throw error;
+        // close modal, hide warnings and refresh list
+        if (modal) modal.style.display = 'none';
+        if (profileIncompleteMsg) profileIncompleteMsg.style.display = 'none';
+        if (postErr) { postErr.style.display = 'none'; postErr.textContent = ''; }
+        // clear inputs
+        if (postHeadingEl) postHeadingEl.value = '';
+        if (postContentEl) postContentEl.value = '';
+        if (imagesInput) imagesInput.value = '';
+        if (videosInput) videosInput.value = '';
+        if (contactOtherEl) contactOtherEl.value = '';
+        // refresh list to reflect DB defaults and triggers
+        await loadPosts();
+    } catch (err) {
+        console.error('[Posts] submit error', err);
+        if (postErr) { postErr.style.display = 'block'; postErr.textContent = (err?.message || String(err)) || 'Failed to create post'; }
     }
 }
 
-function attachListeners() {
-    ['#newPostBtn', '#newPostBtn2'].forEach(sel => { const btn = document.querySelector(sel); if (btn) btn.addEventListener('click', e => { if (!auth.currentUser) return; openModal(); }); });
-    document.getElementById('cancelPostBtn')?.addEventListener('click', e => { e.preventDefault(); closeModal(); });
-    document.getElementById('submitPostBtn')?.addEventListener('click', e => { e.preventDefault(); submitPost(); });
-    const refreshAttachmentList = () => {
-        if (!attachmentList) return; const items = [];
-        if (imagesInput?.files?.length) { Array.from(imagesInput.files).forEach(f => items.push(`<div>🖼️ ${escapeHtml(f.name)} <span style='color:#64748b;font-size:11px;'>(${Math.round(f.size / 1024)} KB)</span></div>`)); }
-        if (videosInput?.files?.length) { Array.from(videosInput.files).forEach(f => items.push(`<div>🎬 ${escapeHtml(f.name)} <span style='color:#64748b;font-size:11px;'>(${Math.round(f.size / 1024)} KB)</span></div>`)); }
-        if (!items.length) { attachmentList.style.display = 'none'; attachmentList.innerHTML = ''; return; }
-        attachmentList.innerHTML = items.join(''); attachmentList.style.display = 'block';
-    };
-    document.getElementById('addPhotoBtn')?.addEventListener('click', e => { e.preventDefault(); imagesInput?.click(); });
-    document.getElementById('addVideoBtn')?.addEventListener('click', e => { e.preventDefault(); videosInput?.click(); });
-    imagesInput?.addEventListener('change', refreshAttachmentList);
-    videosInput?.addEventListener('change', refreshAttachmentList);
-    window.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') closeModal(); });
-    modal?.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-    // Contact modal close
-    document.getElementById('closeContactBtn')?.addEventListener('click', e => { e.preventDefault(); if (contactModal) contactModal.style.display = 'none'; });
-    contactModal?.addEventListener('click', e => { if (e.target === contactModal) contactModal.style.display = 'none'; });
+// Hook the existing form submit listener (if present)
+const postForm = document.getElementById('postForm');
+if (postForm) postForm.addEventListener('submit', submitPostHandler);
+
+// Wire create-post UI: open modal, cancel, and submit
+function wireCreatePostUI() {
+    const newPostBtn = document.getElementById('newPostBtn');
+    const newPostBtn2 = document.getElementById('newPostBtn2');
+    const cancelBtn = document.getElementById('cancelPostBtn');
+    const submitBtn = document.getElementById('submitPostBtn');
+
+    async function openModal() {
+        try {
+            const s = await supabase.auth.getSession();
+            const user = s?.data?.session?.user ?? null;
+            if (!user) { await window.signInWithGoogle?.(); return; }
+            // prefill author name and contact email
+            const p = profileData();
+            postAuthorNameEl && (postAuthorNameEl.textContent = p.displayName || user.user_metadata?.full_name || user.email || 'You');
+            contactEmailEl && (contactEmailEl.value = p.email || user.email || '');
+            profileIncompleteMsg && (profileIncompleteMsg.style.display = isProfileComplete() ? 'none' : 'block');
+            if (modal) modal.style.display = 'flex';
+        } catch (err) { console.warn('[Posts] openModal', err); }
+    }
+
+    if (newPostBtn) newPostBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+    if (newPostBtn2) newPostBtn2.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+    if (cancelBtn) cancelBtn.addEventListener('click', (e) => { e.preventDefault(); if (modal) modal.style.display = 'none'; });
+    if (submitBtn) submitBtn.addEventListener('click', submitPostHandler);
 }
 
-let fallbackTried = false;
-function subscribePosts() {
-    renderLoading();
-    const primaryQuery = query(postsCol, orderBy('time', 'desc'));
-    onSnapshot(primaryQuery, snap => {
-        console.log('[Posts] primary time query size=', snap.size);
-        if (snap.empty && !fallbackTried) {
-            fallbackTried = true;
-            console.log('[Posts] No docs with time field yet, retrying with createdAt');
-            const legacyQuery = query(postsCol, orderBy('createdAt', 'desc'));
-            onSnapshot(legacyQuery, renderPosts, err => {
-                console.error('[Posts] Legacy snapshot error', err);
-                postsContainer.innerHTML = `<div style=\"padding:40px;text-align:center;color:#c00;\">Failed to load posts.</div>`;
-            });
-            return;
+// Realtime subscription (optional) - listens to new posts
+// Load and render posts
+async function loadPosts() {
+    if (!postsContainer || !postTemplate) return;
+    postsContainer.innerHTML = '';
+    try {
+        const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        (data || []).forEach(renderPost);
+    } catch (e) {
+        console.error('[Posts] loadPosts', e);
+        postsContainer.innerHTML = '<div class="error">Failed to load posts.</div>';
+    }
+}
+
+function renderPost(post) {
+    if (!postTemplate) return;
+    const tpl = postTemplate.content.cloneNode(true);
+    const article = tpl.querySelector('article');
+    article.setAttribute('data-post-id', post.id);
+    const authorName = article.querySelector('[data-author-name]');
+    const postTime = article.querySelector('[data-post-time]');
+    const postHeading = article.querySelector('[data-post-heading]');
+    const postContent = article.querySelector('[data-post-content]');
+    const attachments = article.querySelector('[data-post-attachments]');
+    const contacts = article.querySelector('[data-post-contacts]');
+
+    const meta = post.metadata || {};
+    if (authorName) authorName.textContent = meta.author_name || post.author_name || 'User';
+    const timeVal = post.created_at || post.posted_at || post.updated_at;
+    if (postTime) postTime.textContent = timeVal ? new Date(timeVal).toLocaleString() : '';
+    if (postHeading) {
+        if (post.title) { postHeading.textContent = post.title; postHeading.style.display = ''; }
+        else postHeading.style.display = 'none';
+    }
+    if (postContent) postContent.textContent = post.body || '';
+    if (attachments) {
+        if (Array.isArray(meta.media) && meta.media.length) {
+            attachments.style.display = '';
+            attachments.textContent = (meta.media || []).map(m => m.name || m.type).join(', ');
+        } else attachments.style.display = 'none';
+    }
+    if (contacts) {
+        if (meta.contacts) {
+            contacts.style.display = '';
+            contacts.textContent = meta.contacts.email || '';
+        } else contacts.style.display = 'none';
+    }
+
+    // Wire actions: like, comment, share
+    const likeBtn = article.querySelector('[data-like-btn]');
+    const likeCountEl = article.querySelector('[data-like-count]');
+    const commentBtn = article.querySelector('[data-comment-btn]');
+    const commentCountEl = article.querySelector('[data-comment-count]');
+    const shareBtn = article.querySelector('[data-share-btn]');
+
+    // Set initial counts
+    setLikeCount(post.id, likeCountEl);
+    setCommentCount(post.id, commentCountEl);
+
+        if (likeBtn) likeBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await toggleLike(post.id, likeCountEl, likeBtn);
+        });
+    if (commentBtn) commentBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleCommentsPanel(article, post.id);
+    });
+    if (shareBtn) shareBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        sharePost(post.id);
+    });
+
+    postsContainer.appendChild(tpl);
+}
+
+async function setLikeCount(postId, el) {
+    try {
+        const res = await supabase.from('post_likes').select('id', { count: 'exact' }).eq('post_id', postId);
+        if (res.error) throw res.error;
+        // prefer count returned by supabase, otherwise fallback to data length
+        const count = (typeof res.count === 'number') ? res.count : (Array.isArray(res.data) ? res.data.length : 0);
+        if (el) el.textContent = count;
+        console.debug('[Posts] setLikeCount', { postId, count });
+        return count;
+    } catch (e) { console.warn('[Posts] setLikeCount', e); return null; }
+}
+
+// Ensure a `profiles` row exists for the logged-in auth user and return its id.
+async function ensureProfileForAuth(user) {
+    if (!user) return null;
+    try {
+        // Try find existing profile by auth_id
+        let { data, error } = await supabase.from('profiles').select('id').eq('auth_id', user.id).limit(1).maybeSingle();
+        if (error) {
+            console.warn('[Posts] ensureProfileForAuth: select error', error);
         }
-        renderPosts(snap);
-    }, err => {
-        console.error('[Posts] Snapshot error (time query)', err);
-        postsContainer.innerHTML = `<div style=\"padding:40px;text-align:center;color:#c00;\">Failed to load posts.</div>`;
+        if (data && data.id) return data.id;
+
+        // Fallback: try find by email
+        if (user.email) {
+            const byEmail = await supabase.from('profiles').select('id').eq('email', user.email).limit(1).maybeSingle();
+            if (byEmail.data && byEmail.data.id) {
+                // update auth_id for that profile
+                await supabase.from('profiles').update({ auth_id: user.id }).eq('id', byEmail.data.id);
+                return byEmail.data.id;
+            }
+        }
+
+        // Create new profile row
+        const insertPayload = {
+            auth_id: user.id,
+            email: user.email || null,
+            full_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+            avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || null
+        };
+        const ins = await supabase.from('profiles').insert([insertPayload]).select('id').single();
+        if (ins.error) {
+            console.warn('[Posts] ensureProfileForAuth: insert error', ins.error);
+            return null;
+        }
+        return ins.data?.id ?? null;
+    } catch (e) {
+        console.warn('[Posts] ensureProfileForAuth', e);
+        return null;
+    }
+}
+
+async function setCommentCount(postId, el) {
+    try {
+        const { data, error } = await supabase.from('comments').select('id', { count: 'exact' }).eq('post_id', postId);
+        if (error) throw error;
+        const count = data?.length ?? 0;
+        if (el) el.textContent = count;
+    } catch (e) { console.warn('[Posts] setCommentCount', e); }
+}
+
+async function toggleLike(postId, countEl, likeBtn) {
+    try {
+        const s = await supabase.auth.getSession();
+        const user = s?.data?.session?.user ?? null;
+        if (!user) { await window.signInWithGoogle?.(); return; }
+        // Ensure we have a profiles.id to use for the FK
+        const profileId = await ensureProfileForAuth(user);
+        if (!profileId) { throw new Error('Unable to resolve user profile for likes'); }
+
+        // Check if liked (by profiles.id)
+        const existingQ = await supabase.from('post_likes').select('*').eq('post_id', postId).eq('user_id', profileId).limit(1).maybeSingle();
+        const existing = existingQ?.data ?? null;
+        // optimistic UI: toggle liked class and adjust count immediately
+        try {
+            if (likeBtn) likeBtn.classList.toggle('liked', !(existing && existing.id));
+            // compute optimistic count
+            const cur = parseInt(countEl?.textContent || '0', 10) || 0;
+            if (existing && existing.id) {
+                if (countEl) countEl.textContent = Math.max(cur - 1, 0);
+            } else {
+                if (countEl) countEl.textContent = (cur + 1).toString();
+            }
+        } catch (_) {}
+
+        if (existing && existing.id) {
+            // remove
+            const del = await supabase.from('post_likes').delete().eq('id', existing.id);
+            if (del.error) throw del.error;
+        } else {
+            const ins = await supabase.from('post_likes').insert([{ post_id: postId, user_id: profileId, created_at: new Date().toISOString() }]);
+            if (ins.error) throw ins.error;
+        }
+
+        // reconcile authoritative count from server
+        await setLikeCount(postId, countEl);
+    } catch (e) {
+        console.error('[Posts] toggleLike', e);
+    }
+}
+
+function toggleCommentsPanel(articleEl, postId) {
+    try {
+        let panel = articleEl.querySelector('[data-comments-panel]');
+        if (!panel) {
+            if (!commentsTemplate) return;
+            const tpl = commentsTemplate.content.cloneNode(true);
+            panel = tpl.querySelector('[data-comments-panel]');
+            articleEl.appendChild(panel);
+            wireCommentsPanel(panel, postId);
+        }
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    } catch (e) { console.warn('[Posts] toggleCommentsPanel', e); }
+}
+
+function wireCommentsPanel(panel, postId) {
+    const list = panel.querySelector('[data-comments-list]');
+    const form = panel.querySelector('[data-comments-form]');
+    if (!form) return;
+    loadComments(postId, list);
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = form.querySelector('input[name="content"]');
+        if (!input) return;
+        const text = input.value.trim();
+        if (!text) return;
+        try {
+            const s = await supabase.auth.getSession();
+            const user = s?.data?.session?.user ?? null;
+            if (!user) { await window.signInWithGoogle?.(); return; }
+            const payload = {
+                post_id: postId,
+                author_id: null,
+                content: text,
+                metadata: {
+                    author_auth_id: user.id,
+                    author_name: user.user_metadata?.full_name || user.email
+                },
+                created_at: new Date().toISOString()
+            };
+            const { error } = await supabase.from('comments').insert([payload]);
+            if (error) throw error;
+            input.value = '';
+            // comment count will be updated by realtime subscription
+        } catch (err) { console.error('[Posts] submit comment', err); }
     });
 }
 
-if (document.readyState !== 'loading') {
-    attachListeners(); subscribePosts();
-} else {
-    document.addEventListener('DOMContentLoaded', () => { attachListeners(); subscribePosts(); });
+async function loadComments(postId, listEl) {
+    if (!listEl) return;
+    listEl.innerHTML = '<div class="loading">Loading comments...</div>';
+    try {
+        const { data, error } = await supabase.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
+        if (error) throw error;
+        listEl.innerHTML = '';
+        (data || []).forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'comment-item';
+            const author = (c.metadata && c.metadata.author_name) || c.author_name || 'User';
+            const time = c.created_at ? new Date(c.created_at).toLocaleString() : '';
+            div.innerHTML = `<strong>${escapeHtml(author)}</strong> <small>${escapeHtml(time)}</small><div>${escapeHtml(c.content)}</div>`;
+            listEl.appendChild(div);
+        });
+    } catch (e) { console.warn('[Posts] loadComments', e); listEl.innerHTML = '<div class="error">Failed to load comments</div>'; }
 }
 
-window.postsModule = {
-    submitPost
-};
+function sharePost(postId) {
+    const url = `${window.location.origin}${window.location.pathname}#post-${postId}`;
+    if (navigator.share) {
+        navigator.share({ title: 'DIU Forum Post', url }).catch(()=>{});
+    } else {
+        navigator.clipboard?.writeText(url).then(()=> alert('Post link copied to clipboard')); 
+    }
+}
+
+// Realtime subscriptions: likes and comments
+if (supabase && supabase.channel) {
+    try {
+        const ch = supabase.channel('public:posts_live');
+        ch.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'post_likes' }, payload => {
+            // update like count if the post is in DOM
+            const postId = payload.new.post_id;
+            const el = document.querySelector(`[data-post-id="${postId}"] [data-like-count]`);
+            if (el) setLikeCount(postId, el);
+        });
+        ch.on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'post_likes' }, payload => {
+            const postId = payload.old.post_id;
+            const el = document.querySelector(`[data-post-id="${postId}"] [data-like-count]`);
+            if (el) setLikeCount(postId, el);
+        });
+        ch.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments' }, payload => {
+            const postId = payload.new.post_id;
+            const countEl = document.querySelector(`[data-post-id="${postId}"] [data-comment-count]`);
+            if (countEl) setCommentCount(postId, countEl);
+            const panelList = document.querySelector(`[data-post-id="${postId}"] [data-comments-list]`);
+            if (panelList) loadComments(postId, panelList);
+        });
+        ch.subscribe();
+    } catch (e) { console.warn('[Posts] realtime likes/comments failed', e); }
+}
+
+// Initial load
+loadPosts();
+wireCreatePostUI();

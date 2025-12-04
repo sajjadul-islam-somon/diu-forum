@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="blog.css" /> <!-- reuse navbar + base tokens -->
     <link rel="stylesheet" href="settings.css" />
     <link rel="icon" type="image/x-icon" href="assets/diu-logo.png" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
 </head>
 
 <body>
@@ -152,6 +154,23 @@
 
     <script type="module" src="auth.js"></script>
     <script type="module">
+        // Prevent unauthenticated users from viewing settings directly.
+        (async function() {
+            try {
+                // wait briefly for auth.js to initialize
+                await new Promise(r => setTimeout(r, 300));
+                const user = await window.getCurrentUser?.();
+                if (!user) {
+                    // Not signed in -> redirect to blog (or show login)
+                    window.location.href = 'blog.html';
+                    return;
+                }
+            } catch (e) {
+                console.warn('settings auth check failed', e);
+                try { window.location.href = 'blog.html'; } catch(_){}
+            }
+        })();
+
         // Minimal client-side persistence using localStorage (no Firestore yet)
         const form = document.getElementById('profileForm');
         const saveMsg = document.getElementById('profileSaveMsg');

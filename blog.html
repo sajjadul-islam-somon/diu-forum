@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="blog.css">
     <link rel="icon" type="image/x-icon" href="assets/diu-logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
 </head>
 
 <body>
@@ -139,13 +141,37 @@
                 <div class="post-attachments" data-post-attachments style="display:none;"></div>
                 <div class="post-contacts" data-post-contacts style="display:none;"></div>
                 <div class="post-footer">
-                    <button class="contact-btn" data-contact-btn style="display:none;">
-                        <i class="fas fa-address-book"></i>
-                        <span>Contact</span>
-                    </button>
+                    <div class="post-actions">
+                        <button class="like-btn" data-like-btn title="Like">
+                            <i class="fas fa-heart"></i>
+                            <span data-like-count>0</span>
+                        </button>
+                        <button class="comment-btn" data-comment-btn title="Comments">
+                            <i class="fas fa-comment"></i>
+                            <span data-comment-count>0</span>
+                        </button>
+                        <button class="share-btn" data-share-btn title="Share">
+                            <i class="fas fa-share"></i>
+                        </button>
+                        <button class="contact-btn" data-contact-btn style="display:none;">
+                            <i class="fas fa-address-book"></i>
+                            <span>Contact</span>
+                        </button>
+                    </div>
                 </div>
             </article>
         </template>
+
+    <!-- Inline comments area template -->
+    <template id="commentsTemplate">
+        <div class="comments-panel" data-comments-panel style="display:none;">
+            <div class="comments-list" data-comments-list></div>
+            <form class="comments-form" data-comments-form>
+                <input type="text" name="content" placeholder="Write a comment..." required />
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </template>
 
 
         <!-- Right Sidebar -->
@@ -286,6 +312,29 @@
         </div>
     </div>
     <script type="module" src="auth.js"></script>
+    <script>
+        // Require authentication to view blog feed. If no user, start sign-in and return here.
+        (async function() {
+            try {
+                // wait briefly for auth.js to initialize
+                await new Promise(r => setTimeout(r, 300));
+                const user = await window.getCurrentUser?.();
+                if (!user) {
+                    const target = window.location.href;
+                    try {
+                        // try direct redirect sign-in
+                        await window.signInAndRedirect?.(target);
+                    } catch (e) {
+                        // fallback: save return path and do normal sign-in
+                        try { localStorage.setItem('auth_return_to', target); } catch(_){}
+                        await window.signInWithGoogle?.();
+                    }
+                }
+            } catch (err) {
+                console.warn('blog auth check failed', err);
+            }
+        })();
+    </script>
     <script type="module" src="posts.js"></script>
 </body>
 

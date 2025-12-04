@@ -1535,6 +1535,54 @@ body {
 }
 
 /* Post Creation Modal */
+/* Post action buttons (Like / Comment / Share) - modernized */
+.post-footer .post-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.post-actions button {
+    background: transparent;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #374151;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 0.95rem;
+}
+.post-actions button .fa {
+    font-size: 1.05rem;
+    width: 20px;
+    text-align: center;
+}
+.post-actions button span {
+    color: #475569;
+}
+.post-actions button:hover {
+    background: rgba(99,102,241,0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99,102,241,0.08);
+}
+.post-actions button:focus {
+    outline: 2px solid rgba(99,102,241,0.12);
+    outline-offset: 2px;
+}
+.like-btn { color: #ef4444; }
+.comment-btn { color: #4f46e5; }
+.share-btn { color: #059669; }
+.post-actions .like-btn.liked {
+    background: rgba(239,68,68,0.08);
+    box-shadow: 0 6px 18px rgba(239,68,68,0.08);
+    transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    .post-actions button { transition: none; transform: none; }
+}
 .modal-overlay {
     display: none;
     position: fixed;
