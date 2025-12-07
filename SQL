@@ -202,6 +202,17 @@ CREATE POLICY "Insert comments for DIU users" ON comments
     )
   );
 
+-- Comments: allow authenticated DIU users to read comments
+CREATE POLICY "Select comments for DIU users" ON comments
+  FOR SELECT
+  USING (
+    (auth.role() = 'authenticated')
+    AND (
+      (auth.jwt() ->> 'email') LIKE '%@diu.edu.bd'
+      OR (current_setting('jwt.claims.email', true) LIKE '%@diu.edu.bd')
+    )
+  );
+
 -- Post_likes: allow insert/delete for DIU users (create a like), ensure uniqueness by constraint
 CREATE POLICY "Insert likes for DIU users" ON post_likes
   FOR INSERT

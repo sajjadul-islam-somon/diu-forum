@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job & Internship Board</title>
+    <title>Career Opportunities</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="blog.css"><!-- shared navbar + base tokens -->
     <link rel="stylesheet" href="jobs.css">
@@ -14,77 +14,87 @@
     <script src="config.js"></script>
 </head>
 
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-brand-card">
-                <div class="nav-brand">
+<body class="page-with-header">
+    <header class="header subpage-header">
+        <nav class="navbar">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
                     <i class="fas fa-graduation-cap"></i>
                     <span>DIU Forum</span>
-                </div>
+                </a>
             </div>
-            <div class="nav-menu-card">
-                <div class="nav-menu">
-                    <ul class="nav-links">
-                        <li class="nav-item"><a href="blog.html">Feeds</a></li>
-                        <li class="nav-item"><a class="active" href="jobs.html">Jobs</a></li>
-                        <li class="nav-item"><a href="studies.html">H. Studies</a></li>
-                    </ul>
-                </div>
+            <div class="nav-center">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="blog.html" class="nav-link">Blogs</a>
+                <a href="jobs.html" class="nav-link active">Jobs</a>
+                <a href="studies.html" class="nav-link">Higher Studies</a>
             </div>
-            <div class="user-menu-card">
-                <div class="user-menu">
-                    <div class="user-profile" onclick="toggleDropdown()">
-                        <span id="userName">Guest User</span>
-                        <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
-                        <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
-                    </div>
-                    <div class="dropdown" id="userDropdown">
-                        <div id="dropdownLogin">
-                            <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <div class="nav-right">
+                <div class="user-menu-card">
+                    <div class="user-menu">
+                        <div class="user-profile">
+                            <span id="userName">Guest User</span>
+                            <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
+                            <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
                         </div>
-                        <div id="dropdownLogout" class="hidden">
-                            <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <div class="dropdown" id="userDropdown">
+                            <div id="dropdownLogin">
+                                <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                            </div>
+                            <div id="dropdownLogout" class="hidden">
+                                <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                            <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                            <a href="help.html"><i class="fa-solid fa-circle-question"></i>Help</a>
                         </div>
-                        <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
-                        <a href="help.html"><i class="fa-solid fa-circle-question"></i>Help</a>
                     </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
 
     <div class="container">
-        <div class="header">
+        <div class="page-header">
             <div class="header-content">
-                <h1>Job & Internship Board</h1>
-                <p>Discover opportunities posted by DIU alumni and faculty</p>
+                <h1>Career Opportunities</h1>
+                <p>Discover roles, internships, and alumni-backed openings</p>
             </div>
             <button class="post-btn" id="post-job-btn">
-                <span>+</span> Post a Job
+                <i class="fa-solid fa-plus"></i>
+                <span>Post Job</span>
             </button>
         </div>
 
-        <div class="filters">
-            <input type="text" class="search-input" placeholder="Search jobs or companies..." id="search-input">
-            <select class="filter-select" id="department-filter">
-                <option value="">All Departments</option>
-                <option value="computer-science">Computer Science</option>
-                <option value="business">Business</option>
-                <option value="engineering">Engineering</option>
-            </select>
-            <select class="filter-select" id="type-filter">
-                <option value="">All Types</option>
-                <option value="internship">Internship</option>
-                <option value="full-time">Full-time</option>
-                <option value="part-time">Part-time</option>
-            </select>
+        <div class="filters-toolbar">
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search by title, company, skills, or location" id="search-input">
+            </div>
+            <div class="filter-group">
+                <button type="button" class="filter-pill" id="saved-filter-toggle">Saved</button>
+                <select class="filter-select" id="department-filter">
+                    <option value="">All Departments</option>
+                    <option value="computer-science">Computer Science</option>
+                    <option value="business">Business</option>
+                    <option value="engineering">Engineering</option>
+                    <option value="arts">Arts</option>
+                    <option value="law">Law</option>
+                    <option value="pharmacy">Pharmacy</option>
+                    <option value="agriculture">Agriculture</option>
+                </select>
+                <select class="filter-select" id="type-filter">
+                    <option value="">All Types</option>
+                    <option value="internship">Internship</option>
+                    <option value="full-time">Full-time</option>
+                    <option value="part-time">Part-time</option>
+                    <option value="contract">Contract</option>
+                </select>
+            </div>
         </div>
 
         <div class="results-info">
-            <span id="results-count">Showing 4 of 4 opportunities</span>
-            <button class="btn-secondary" id="more-filters-btn">More Filters</button>
+            <span id="results-count">Showing Job Opportunities</span>
         </div>
 
         <div class="featured-flex" id="jobs-container">
@@ -129,12 +139,20 @@
                         <option value="computer-science">Computer Science</option>
                         <option value="business">Business</option>
                         <option value="engineering">Engineering</option>
+                        <option value="arts">Arts</option>
+                        <option value="law">Law</option>
+                        <option value="pharmacy">Pharmacy</option>
+                        <option value="agriculture">Agriculture</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="description">Job Description *</label>
                     <textarea id="description" name="description" required
                         placeholder="Describe the role, responsibilities, and requirements..."></textarea>
+                </div>
+                <div class="form-group">
+                        <label for="company-contact">Company Contact</label>
+                        <input type="text" id="company-contact" name="company_contact" placeholder="Email, phone, or contact person">
                 </div>
                 <div class="form-group">
                     <label for="required-skills">Required Skills (comma-separated)</label>
@@ -150,6 +168,17 @@
                     <button type="submit" class="btn-primary">Post Job</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Job Detail Modal -->
+    <div class="modal" id="job-detail-modal">
+        <div class="modal-content job-detail-content">
+            <div class="modal-header">
+                <h2>Job Details</h2>
+                <button class="close-btn" id="close-job-detail">&times;</button>
+            </div>
+            <div class="job-detail-body" id="job-detail-body"></div>
         </div>
     </div>
 

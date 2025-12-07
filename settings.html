@@ -13,45 +13,44 @@
     <script src="config.js"></script>
 </head>
 
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-brand-card">
-                <div class="nav-brand">
+<body class="page-with-header">
+    <header class="header subpage-header">
+        <nav class="navbar">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
                     <i class="fas fa-graduation-cap"></i>
                     <span>DIU Forum</span>
-                </div>
+                </a>
             </div>
-            <div class="nav-menu-card">
-                <div class="nav-menu">
-                    <ul class="nav-links">
-                        <li class="nav-item"><a href="blog.html">Feeds</a></li>
-                        <li class="nav-item"><a href="jobs.html">Jobs</a></li>
-                        <li class="nav-item"><a href="studies.html">H. Studies</a></li>
-                    </ul>
-                </div>
+            <div class="nav-center">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="blog.html" class="nav-link">Blogs</a>
+                <a href="jobs.html" class="nav-link">Jobs</a>
+                <a href="studies.html" class="nav-link">Higher Studies</a>
             </div>
-            <div class="user-menu-card">
-                <div class="user-menu">
-                    <div class="user-profile" onclick="toggleDropdown()">
-                        <span id="userName">Guest User</span>
-                        <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
-                        <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
-                    </div>
-                    <div class="dropdown" id="userDropdown">
-                        <div id="dropdownLogin">
-                            <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <div class="nav-right">
+                <div class="user-menu-card">
+                    <div class="user-menu">
+                        <div class="user-profile">
+                            <span id="userName">Guest User</span>
+                            <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
+                            <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
                         </div>
-                        <div id="dropdownLogout" class="hidden">
-                            <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <div class="dropdown" id="userDropdown">
+                            <div id="dropdownLogin">
+                                <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                            </div>
+                            <div id="dropdownLogout" class="hidden">
+                                <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                            <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                            <a href="help.html"><i class="fa-solid fa-circle-question"></i>Help</a>
                         </div>
-                        <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
-                        <a href="help.html"><i class="fa-solid fa-circle-question"></i>Help</a>
                     </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
 
     <div class="settings-wrapper">
@@ -59,8 +58,10 @@
             <h3>Settings</h3>
             <nav class="settings-nav" id="settingsNav">
                 <a href="#profile" class="active"><i class="fas fa-user"></i><span>Profile</span></a>
+                <a href="#contact"><i class="fas fa-address-book"></i><span>Contact</span></a>
+                <a href="#notifications"><i class="fas fa-bell"></i><span>Notifications</span></a>
+                <a href="#privacy"><i class="fas fa-shield-alt"></i><span>Privacy & Security</span></a>
                 <a href="#about"><i class="fas fa-circle-info"></i><span>About</span></a>
-                <a href="#privacy"><i class="fas fa-shield-alt"></i><span>Privacy</span></a>
                 <a href="help.html"><i class="fa-solid fa-circle-question"></i><span>Help</span></a>
             </nav>
         </aside>
@@ -122,106 +123,463 @@
                     </div>
                     <div class="save-row"><button class="btn-save" type="submit">Save Changes</button></div>
                 </form>
-                <div id="profileSaveMsg"
-                    style="display:none;margin-top:14px;font-size:13px;font-weight:500;color:#15803d;">Saved!</div>
+                <div id="profileSaveMsg" class="settings-flash">Saved!</div>
+            </section>
+
+            <!-- Contact Info -->
+            <section id="contact" class="settings-section">
+                <h2>Contact & Reachability</h2>
+                <p class="desc">Control how the community can reach you. These details help when you share jobs or collaboration posts.</p>
+                <form id="contactForm">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="contactEmail">Primary email</label>
+                            <input type="email" id="contactEmail" class="locked-field" placeholder="you@diu.edu.bd" readonly />
+                            <div class="note">Locked to your verified DIU email for trust and authenticity.</div>
+                        </div>
+                        <div class="form-field">
+                            <label for="contactPhone">Phone / Mobile</label>
+                            <input type="tel" id="contactPhone" placeholder="e.g., +8801XXX" />
+                        </div>
+                        <div class="form-field">
+                            <label for="contactWhatsApp">WhatsApp</label>
+                            <input type="text" id="contactWhatsApp" placeholder="WhatsApp number or link" />
+                        </div>
+                        <div class="form-field">
+                            <label for="contactTelegram">Telegram / Messenger</label>
+                            <input type="text" id="contactTelegram" placeholder="@username or link" />
+                        </div>
+                        <div class="form-field">
+                            <label for="contactLinkedIn">LinkedIn</label>
+                            <input type="url" id="contactLinkedIn" placeholder="https://linkedin.com/in/you" />
+                        </div>
+                        <div class="form-field">
+                            <label for="contactWebsite">Portfolio / Website</label>
+                            <input type="url" id="contactWebsite" placeholder="https://" />
+                        </div>
+                    </div>
+                    <div class="save-row"><button class="btn-save" type="submit">Save Contact Details</button></div>
+                </form>
+                <div class="settings-flash" id="contactSaveMsg">Contact preferences saved!</div>
+            </section>
+
+            <!-- Notifications -->
+            <section id="notifications" class="settings-section">
+                <h2>Notifications</h2>
+                <p class="desc">Choose which updates land in your inbox. App notifications are coming soon.</p>
+                <form id="notificationsForm">
+                    <div class="toggle-list">
+                        <div class="toggle-row">
+                            <input type="checkbox" id="notifDigest" />
+                            <div>
+                                <div class="toggle-title">Weekly forum digest</div>
+                                <p>Highlights from feeds, trending discussions, and community wins.</p>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <input type="checkbox" id="notifJob" />
+                            <div>
+                                <div class="toggle-title">Job & opportunity alerts</div>
+                                <p>Be notified when new jobs, internships, or scholarships match your interests.</p>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <input type="checkbox" id="notifComments" />
+                            <div>
+                                <div class="toggle-title">Comments & mentions</div>
+                                <p>Emails when someone replies to you or tags you in a thread.</p>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <input type="checkbox" id="notifSecurity" />
+                            <div>
+                                <div class="toggle-title">Security alerts</div>
+                                <p>Critical alerts about suspicious sign-ins or password resets.</p>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <input type="checkbox" id="notifProduct" />
+                            <div>
+                                <div class="toggle-title">Product updates</div>
+                                <p>Occasional emails about new features and improvements.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="save-row"><button class="btn-save" type="submit">Save Notification Settings</button></div>
+                </form>
+                <div class="settings-flash" id="notificationsSaveMsg">Notification preferences saved!</div>
+            </section>
+
+            <!-- Privacy & Security -->
+            <section id="privacy" class="settings-section">
+                <h2>Privacy & Security</h2>
+                <p class="desc">Control how your profile appears to others and how we keep your account secure.</p>
+                <form id="securityForm">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="profileVisibility">Profile visibility</label>
+                            <select id="profileVisibility" disabled>
+                                <option value="public">Public to authenticated DIU users</option>
+                                <option value="community">Visible to followers & classmates</option>
+                                <option value="private">Only me</option>
+                            </select>
+                            <div class="note">Visibility controls unlock once community moderation tooling ships (upcoming).</div>
+                        </div>
+                        <div class="form-field">
+                            <label for="twoFactorPref">Two-factor preference</label>
+                            <select id="twoFactorPref">
+                                <option value="disabled">Disabled</option>
+                                <option value="sms" disabled>SMS (upcoming)</option>
+                                <option value="auth_app" disabled>Authenticator app (upcoming)</option>
+                            </select>
+                            <div class="note">We will notify you as soon as secure two-factor enrollment is available.</div>
+                        </div>
+                    </div>
+                    <div class="toggle-list" style="margin-top:18px;">
+                        <div class="toggle-row">
+                            <input type="checkbox" id="showEmail" checked disabled />
+                            <div>
+                                <div class="toggle-title">Show email on profile</div>
+                                <p>Always display your verified DIU email alongside posts (required for trust at launch).</p>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <input type="checkbox" id="sessionAlerts" disabled />
+                            <div>
+                                <div class="toggle-title">Session notifications</div>
+                                <p>Device login alerts are coming soon; automatic emails remain off until then.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="save-row"><button class="btn-save" type="submit">Save Privacy Settings</button></div>
+                </form>
+                <ul class="privacy-list">
+                    <li>We only store the fields you provide here for display inside the forum.</li>
+                    <li>Emails are never shared publicly unless you explicitly enable the option above.</li>
+                    <li>Session timeline, device revoke, and 2FA enrollment are labeled <em>upcoming</em>.</li>
+                </ul>
+                <div class="settings-flash" id="securitySaveMsg">Privacy preferences saved!</div>
             </section>
 
             <!-- About -->
-            <section id="about" class="settings-section">
-                <h2>About</h2>
-                <p class="desc">Learn more about the DIU Forum platform and its mission to connect students, alumni, and
-                    faculty.</p>
-                <p>DIU Forum is a community-driven platform for sharing knowledge, opportunities, and experiences. We
-                    aim to create a helpful, respectful space for academic & professional growth.</p>
+            <section id="about" class="settings-section about-section">
+                <div class="about-header">
+                    <div>
+                        <h2>About DIU Forum</h2>
+                        <p class="desc">Built by and for the DIU community — crafted to feel like the campus intranet you wish existed.</p>
+                    </div>
+                    <div class="about-badge">Est. 2025 · Community Beta</div>
+                </div>
+                <div class="about-grid">
+                    <div class="about-card">
+                        <h3>Our Promise</h3>
+                        <p>Every post, job tip, or research idea should feel like a hallway conversation with seniors, mentors, or alumni. We focus on trusted identities (DIU-only auth) so you can collaborate with confidence.</p>
+                        <ul>
+                            <li>Realtime feeds powered by Supabase</li>
+                            <li>Secure DIU-only access</li>
+                            <li>Lightweight profile & contact sharing</li>
+                        </ul>
+                    </div>
+                    <div class="about-card">
+                        <h3>What you can do</h3>
+                        <div class="about-pill-list">
+                            <span>Share updates</span>
+                            <span>Announce events</span>
+                            <span>Post openings</span>
+                            <span>Find study buddies</span>
+                            <span>Track higher studies</span>
+                        </div>
+                        <p>DIU Forum adapts to your role — whether you’re a freshman exploring clubs, a graduating senior job-hunting, or an alum mentoring juniors.</p>
+                    </div>
+                    <div class="about-card about-cta">
+                        <h3>Shaping the roadmap</h3>
+                        <p>We iterate fast. Drop your feature requests or bug reports — every release rolls out weekly.</p>
+                        <div class="about-cta-stats">
+                            <div><strong>3</strong><span>core modules</span></div>
+                            <div><strong>40+</strong><span>early testers</span></div>
+                            <div><strong>∞</strong><span>ideas to ship</span></div>
+                        </div>
+                        <a class="about-link" href="mailto:forum-team@diu.edu.bd"><i class="fas fa-envelope"></i> forum-team@diu.edu.bd</a>
+                    </div>
+                </div>
             </section>
 
-            <!-- Privacy -->
-            <section id="privacy" class="settings-section">
-                <h2>Privacy</h2>
-                <p class="desc">Understand how your information is used and manage basic visibility preferences.</p>
-                <ul class="privacy-list">
-                    <li>We store only minimal profile data (name, optional department, bio).</li>
-                    <li>Your email is used solely for authentication (not shown to other users).</li>
-                    <li>Posts you create are public to authenticated users.</li>
-                    <li>You can remove custom profile info anytime (it will fall back to auth defaults).</li>
-                </ul>
-            </section>
-
-            
         </main>
     </div>
     <a class="anchor-top" href="#top" title="Back to top"><i class="fas fa-arrow-up"></i></a>
 
     <script type="module" src="auth.js"></script>
     <script type="module">
-        // Prevent unauthenticated users from viewing settings directly.
+        import { fetchProfile, saveProfile, getCachedProfile, onProfileCacheUpdate } from './profileStore.js';
+
         (async function() {
             try {
-                // wait briefly for auth.js to initialize
                 await new Promise(r => setTimeout(r, 300));
                 const user = await window.getCurrentUser?.();
                 if (!user) {
-                    // Not signed in -> redirect to blog (or show login)
                     window.location.href = 'blog.html';
                     return;
                 }
             } catch (e) {
                 console.warn('settings auth check failed', e);
-                try { window.location.href = 'blog.html'; } catch(_){}
+                try { window.location.href = 'blog.html'; } catch(_){ }
             }
         })();
 
-        // Minimal client-side persistence using localStorage (no Firestore yet)
         const form = document.getElementById('profileForm');
         const saveMsg = document.getElementById('profileSaveMsg');
         const displayNameInput = document.getElementById('displayName');
-    const deptSelect = document.getElementById('department');
-    const roleSelect = document.getElementById('role');
-    const institutionInput = document.getElementById('institution');
+        const deptSelect = document.getElementById('department');
+        const roleSelect = document.getElementById('role');
+        const institutionInput = document.getElementById('institution');
         const bioInput = document.getElementById('bio');
         const avatarImg = document.getElementById('settingsAvatarImg');
         const avatarFallback = document.getElementById('settingsAvatarFallback');
 
-        // Load stored data
-        const stored = JSON.parse(localStorage.getItem('diuProfile') || '{}');
-        if (stored.displayName) displayNameInput.value = stored.displayName;
-    if (stored.department) deptSelect.value = stored.department;
-    if (stored.role) roleSelect.value = stored.role;
-    if (stored.institution) institutionInput.value = stored.institution;
-        if (stored.bio) bioInput.value = stored.bio;
+        const contactForm = document.getElementById('contactForm');
+        const contactSaveMsg = document.getElementById('contactSaveMsg');
+        const contactEmailInput = document.getElementById('contactEmail');
+        const contactPhoneInput = document.getElementById('contactPhone');
+        const contactWhatsAppInput = document.getElementById('contactWhatsApp');
+        const contactTelegramInput = document.getElementById('contactTelegram');
+        const contactLinkedInInput = document.getElementById('contactLinkedIn');
+        const contactWebsiteInput = document.getElementById('contactWebsite');
 
-        // Hook into existing auth state via global window.diuAuth if available
-        const syncAuth = () => {
-            const auth = window.diuAuth?.auth;
-            if (!auth) return;
-            const user = auth.currentUser;
-            if (!user) return;
-            if (user.photoURL) {
-                avatarImg.src = user.photoURL; avatarImg.style.display = 'block'; avatarFallback.style.display = 'none';
-            } else {
-                avatarImg.style.display = 'none'; avatarFallback.style.display = 'flex'; avatarFallback.textContent = (user.displayName || 'U')[0].toUpperCase();
+        const notificationsForm = document.getElementById('notificationsForm');
+        const notificationsSaveMsg = document.getElementById('notificationsSaveMsg');
+        const notifDigestInput = document.getElementById('notifDigest');
+        const notifJobInput = document.getElementById('notifJob');
+        const notifCommentsInput = document.getElementById('notifComments');
+        const notifSecurityInput = document.getElementById('notifSecurity');
+        const notifProductInput = document.getElementById('notifProduct');
+
+        const securityForm = document.getElementById('securityForm');
+        const securitySaveMsg = document.getElementById('securitySaveMsg');
+        const visibilitySelect = document.getElementById('profileVisibility');
+        const twoFactorSelect = document.getElementById('twoFactorPref');
+        const showEmailInput = document.getElementById('showEmail');
+        const sessionAlertsInput = document.getElementById('sessionAlerts');
+
+        if (contactEmailInput) {
+            contactEmailInput.readOnly = true;
+            contactEmailInput.classList.add('locked-field');
+        }
+
+        const PREFS_KEY = 'diuSettingsPrefs';
+        const boolPref = (val, fallback = false) => typeof val === 'boolean' ? val : fallback;
+        let settingsPrefs = readPrefs();
+        let currentUser = null;
+        let currentProfile = getCachedProfile();
+        let remoteProfileLoaded = false;
+
+        hydrateForms();
+
+        onProfileCacheUpdate(profile => {
+            if (profile) {
+                currentProfile = profile;
+                remoteProfileLoaded = true;
+                hydrateForms();
             }
-            if (!displayNameInput.value) displayNameInput.value = user.displayName || '';
-        };
-        setTimeout(syncAuth, 400); // delay to allow auth.js init
-        document.addEventListener('auth-ready', syncAuth);
-
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            const data = {
-                displayName: displayNameInput.value.trim(),
-                role: roleSelect.value,
-                department: deptSelect.value,
-                institution: institutionInput.value.trim(),
-                bio: bioInput.value.trim()
-            };
-            localStorage.setItem('diuProfile', JSON.stringify(data));
-            saveMsg.style.display = 'block';
-            saveMsg.textContent = 'Saved!';
-            setTimeout(() => saveMsg.style.display = 'none', 2600);
         });
 
-        // Highlight active link on scroll
+        function readPrefs() {
+            if (typeof localStorage === 'undefined') return {};
+            try {
+                const parsed = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}');
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function mergePrefs(patch) {
+            settingsPrefs = {
+                ...settingsPrefs,
+                ...patch,
+                notifications: { ...(settingsPrefs.notifications || {}), ...(patch.notifications || {}) },
+                privacy: { ...(settingsPrefs.privacy || {}), ...(patch.privacy || {}) }
+            };
+            try { localStorage.setItem(PREFS_KEY, JSON.stringify(settingsPrefs)); } catch (_) {}
+            return settingsPrefs;
+        }
+
+        function hydrateForms() {
+            const profile = currentProfile || {};
+            if (displayNameInput) displayNameInput.value = profile.displayName || '';
+            if (deptSelect) deptSelect.value = profile.department || '';
+            if (roleSelect) roleSelect.value = profile.role || '';
+            if (institutionInput) institutionInput.value = profile.institution || '';
+            if (bioInput) bioInput.value = profile.bio || '';
+
+            if (contactEmailInput) contactEmailInput.value = profile.primaryEmail || profile.email || '';
+            if (contactPhoneInput) contactPhoneInput.value = profile.phone || '';
+            if (contactWhatsAppInput) contactWhatsAppInput.value = profile.whatsapp || '';
+            if (contactTelegramInput) contactTelegramInput.value = profile.telegram || '';
+            if (contactLinkedInInput) contactLinkedInInput.value = profile.linkedin || '';
+            if (contactWebsiteInput) contactWebsiteInput.value = profile.website || '';
+
+            const notif = settingsPrefs.notifications || {};
+            if (notifDigestInput) notifDigestInput.checked = boolPref(notif.digest, true);
+            if (notifJobInput) notifJobInput.checked = boolPref(notif.jobAlerts, true);
+            if (notifCommentsInput) notifCommentsInput.checked = boolPref(notif.comments, true);
+            if (notifSecurityInput) notifSecurityInput.checked = boolPref(notif.security, true);
+            if (notifProductInput) notifProductInput.checked = boolPref(notif.product, false);
+
+            const privacy = settingsPrefs.privacy || {};
+            if (visibilitySelect) visibilitySelect.value = privacy.visibility || 'public';
+            if (twoFactorSelect) twoFactorSelect.value = privacy.twoFactor || 'disabled';
+            if (showEmailInput) showEmailInput.checked = true;
+            if (sessionAlertsInput) sessionAlertsInput.checked = false;
+        }
+
+        async function ensureUser() {
+            if (currentUser) return currentUser;
+            const user = await window.getCurrentUser?.();
+            if (!user) throw new Error('User not authenticated');
+            currentUser = user;
+            return user;
+        }
+
+        function flashMessage(el, text, isError = false) {
+            if (!el) return;
+            el.textContent = text || 'Saved!';
+            el.classList.toggle('flash-error', !!isError);
+            el.classList.toggle('flash-success', !isError);
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 2600);
+        }
+
+        async function refreshProfile(force = false) {
+            try {
+                const user = await ensureUser();
+                if (!force && remoteProfileLoaded) return;
+                const profile = await fetchProfile(user, { createIfMissing: true });
+                if (profile) {
+                    currentProfile = profile;
+                    remoteProfileLoaded = true;
+                    hydrateForms();
+                }
+            } catch (err) {
+                console.warn('settings refreshProfile failed', err);
+            }
+        }
+
+        async function syncAuth(forceRemote = false) {
+            try {
+                const user = await ensureUser();
+                const profile = currentProfile || {};
+                const meta = user.user_metadata || {};
+                const displaySeed = profile.displayName || meta.full_name || meta.name || user.email || 'U';
+                const fallbackLetter = displaySeed.charAt(0).toUpperCase();
+                const avatarUrl = profile.avatarUrl || meta.avatar_url || meta.picture || null;
+
+                if (avatarUrl) {
+                    if (avatarImg) {
+                        avatarImg.src = avatarUrl;
+                        avatarImg.style.display = 'block';
+                    }
+                    if (avatarFallback) avatarFallback.style.display = 'none';
+                } else {
+                    if (avatarImg) {
+                        avatarImg.src = '';
+                        avatarImg.style.display = 'none';
+                    }
+                    if (avatarFallback) {
+                        avatarFallback.style.display = 'flex';
+                        avatarFallback.textContent = fallbackLetter;
+                    }
+                }
+
+                if (!remoteProfileLoaded || forceRemote) {
+                    await refreshProfile(true);
+                } else {
+                    hydrateForms();
+                }
+            } catch (err) {
+                console.warn('settings syncAuth failed', err);
+            }
+        }
+
+        setTimeout(() => syncAuth(true), 400);
+        document.addEventListener('auth-ready', () => syncAuth(true));
+
+        if (form) {
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                try {
+                    const user = await ensureUser();
+                    const data = {
+                        displayName: displayNameInput.value.trim(),
+                        role: roleSelect.value,
+                        department: deptSelect.value,
+                        institution: institutionInput.value.trim(),
+                        bio: bioInput.value.trim()
+                    };
+                    currentProfile = await saveProfile(user, data);
+                    remoteProfileLoaded = true;
+                    hydrateForms();
+                    flashMessage(saveMsg, 'Profile saved!');
+                } catch (err) {
+                    console.error('settings profile save failed', err);
+                    const msg = err?.message ? `Failed to save profile: ${err.message}` : 'Failed to save profile. Try again.';
+                    flashMessage(saveMsg, msg, true);
+                }
+            });
+        }
+
+        if (contactForm) {
+            contactForm.addEventListener('submit', async e => {
+                e.preventDefault();
+                try {
+                    const user = await ensureUser();
+                    const contactData = {
+                        phone: contactPhoneInput.value.trim(),
+                        whatsapp: contactWhatsAppInput.value.trim(),
+                        telegram: contactTelegramInput.value.trim(),
+                        linkedin: contactLinkedInInput.value.trim(),
+                        website: contactWebsiteInput.value.trim()
+                    };
+                    currentProfile = await saveProfile(user, contactData);
+                    remoteProfileLoaded = true;
+                    hydrateForms();
+                    flashMessage(contactSaveMsg, 'Contact preferences saved!');
+                } catch (err) {
+                    console.error('settings contact save failed', err);
+                    const msg = err?.message ? `Failed to save contact details: ${err.message}` : 'Failed to save contact details.';
+                    flashMessage(contactSaveMsg, msg, true);
+                }
+            });
+        }
+
+        if (notificationsForm) {
+            notificationsForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const notifData = {
+                    digest: notifDigestInput.checked,
+                    jobAlerts: notifJobInput.checked,
+                    comments: notifCommentsInput.checked,
+                    security: notifSecurityInput.checked,
+                    product: notifProductInput.checked
+                };
+                mergePrefs({ notifications: notifData });
+                flashMessage(notificationsSaveMsg, 'Notification preferences saved!');
+            });
+        }
+
+        if (securityForm) {
+            securityForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const privacyData = {
+                    visibility: visibilitySelect.value || 'public',
+                    twoFactor: twoFactorSelect.value || 'disabled',
+                    showEmail: true,
+                    sessionAlerts: false
+                };
+                mergePrefs({ privacy: privacyData });
+                flashMessage(securitySaveMsg, 'Privacy preferences saved!');
+            });
+        }
+
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {

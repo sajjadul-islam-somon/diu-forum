@@ -12,45 +12,44 @@
     <script src="config.js"></script>
 </head>
 
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-brand-card">
-                <div class="nav-brand">
+<body class="page-with-header">
+    <header class="header subpage-header">
+        <nav class="navbar">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
                     <i class="fas fa-graduation-cap"></i>
                     <span>DIU Forum</span>
-                </div>
+                </a>
             </div>
-            <div class="nav-menu-card">
-                <div class="nav-menu">
-                    <ul class="nav-links">
-                        <li class="nav-item"><a class="active" href="blog.html">Feeds</a></li>
-                        <li class="nav-item"><a href="jobs.html">Jobs</a></li>
-                        <li class="nav-item"><a href="studies.html">H. Studies</a></li>
-                    </ul>
-                </div>
+            <div class="nav-center">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="blog.html" class="nav-link active">Blogs</a>
+                <a href="jobs.html" class="nav-link">Jobs</a>
+                <a href="studies.html" class="nav-link">Higher Studies</a>
             </div>
-            <div class="user-menu-card">
-                <div class="user-menu">
-                    <div class="user-profile" onclick="toggleDropdown()">
-                        <span id="userName">Guest User</span>
-                        <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
-                        <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
-                    </div>
-                    <div class="dropdown" id="userDropdown">
-                        <div id="dropdownLogin">
-                            <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <div class="nav-right">
+                <div class="user-menu-card">
+                    <div class="user-menu">
+                        <div class="user-profile">
+                            <span id="userName">Guest User</span>
+                            <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
+                            <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
                         </div>
-                        <div id="dropdownLogout" class="hidden">
-                            <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <div class="dropdown" id="userDropdown">
+                            <div id="dropdownLogin">
+                                <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                            </div>
+                            <div id="dropdownLogout" class="hidden">
+                                <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                            <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                            <a href="help.html"><i class="fa-solid fa-circle-question"></i>Help</a>
                         </div>
-                        <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
-                        <a href="help.html"><i class="fa-solid fa-circle-question"></i>Help</a>
                     </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <div class="blog-layout">
         <!-- Left Sidebar -->
@@ -96,20 +95,6 @@
                         <span>What's on your mind?</span>
                     </button>
                 </div>
-                <div class="create-post-actions">
-                    <button class="action-item" id="newPostBtn2">
-                        <i class="fas fa-edit"></i>
-                        <span>Write Post</span>
-                    </button>
-                    <button class="action-item">
-                        <i class="fas fa-image"></i>
-                        <span>Photo</span>
-                    </button>
-                    <button class="action-item">
-                        <i class="fas fa-video"></i>
-                        <span>Video</span>
-                    </button>
-                </div>
             </div>
 
             <!-- Posts Feed -->
@@ -126,7 +111,10 @@
             <article class="post-card">
                 <div class="post-header">
                     <div class="author-info">
-                        <div class="author-avatar" data-author-avatar>U</div>
+                        <div class="author-avatar" data-author-avatar>
+                            <img data-author-avatar-img alt="Author avatar" />
+                            <span class="author-avatar-letter">U</span>
+                        </div>
                         <div class="author-details">
                             <div class="author-name">
                                 <span data-author-name></span><span class="author-meta" data-author-meta
@@ -135,12 +123,39 @@
                             <div class="post-time" data-post-time></div>
                         </div>
                     </div>
+                    <div class="post-menu">
+                        <button class="post-menu-toggle" data-post-menu-toggle aria-label="Post actions">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <div class="post-menu-dropdown" data-post-menu>
+                            <button class="post-menu-item" data-menu-action="contact">
+                                <i class="fas fa-address-card"></i>
+                                <span>View contact info</span>
+                            </button>
+                            <button class="post-menu-item" data-menu-action="copy">
+                                <i class="fas fa-link"></i>
+                                <span>Copy post link</span>
+                            </button>
+                            <button class="post-menu-item" data-menu-action="edit">
+                                <i class="fas fa-pen"></i>
+                                <span>Edit post</span>
+                            </button>
+                            <button class="post-menu-item is-destructive" data-menu-action="delete">
+                                <i class="fas fa-trash"></i>
+                                <span>Delete post</span>
+                            </button>
+                            <button class="post-menu-item is-destructive" data-menu-action="report">
+                                <i class="fas fa-flag"></i>
+                                <span>Report post</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <h4 class="post-title" data-post-heading style="display:none;"></h4>
                 <div class="post-content" data-post-content></div>
                 <div class="post-attachments" data-post-attachments style="display:none;"></div>
-                <div class="post-contacts" data-post-contacts style="display:none;"></div>
                 <div class="post-footer">
+                    <div class="post-contacts" data-post-contacts style="display:none;"></div>
                     <div class="post-actions">
                         <button class="like-btn" data-like-btn title="Like">
                             <i class="fas fa-heart"></i>
@@ -153,10 +168,6 @@
                         <button class="share-btn" data-share-btn title="Share">
                             <i class="fas fa-share"></i>
                         </button>
-                        <button class="contact-btn" data-contact-btn style="display:none;">
-                            <i class="fas fa-address-book"></i>
-                            <span>Contact</span>
-                        </button>
                     </div>
                 </div>
             </article>
@@ -164,98 +175,41 @@
 
     <!-- Inline comments area template -->
     <template id="commentsTemplate">
-        <div class="comments-panel" data-comments-panel style="display:none;">
+        <div class="comments-panel comments-panel-compact" data-comments-panel style="display:none;">
+            <div class="comments-header">
+                <div>
+                    <p class="comments-title">Discussion</p>
+                </div>
+                <div class="comments-count-pill" data-comments-count>0</div>
+            </div>
             <div class="comments-list" data-comments-list></div>
+            <div class="comments-empty" data-comments-empty>Be the first to share a comment.</div>
+            <div class="comments-status" data-comments-status style="display:none;"></div>
             <form class="comments-form" data-comments-form>
-                <input type="text" name="content" placeholder="Write a comment..." required />
-                <button type="submit">Send</button>
+                <div class="comment-input-row">
+                    <div class="comment-input-avatar" data-comment-avatar>
+                        <img data-comment-avatar-img alt="Your avatar" />
+                        <span class="comment-avatar-letter">U</span>
+                    </div>
+                    <div class="comment-input-fields">
+                        <textarea name="content" rows="2" placeholder="Write a thoughtful comment..." required></textarea>
+                        <div class="comment-input-actions">
+                            <button type="submit" class="comment-submit">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Send</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
     </template>
 
-
-        <!-- Right Sidebar -->
-        <aside class="right-sidebar">
-            <!-- Trending Topics -->
-            <div class="trending-card">
-                <h4>Trending Topics</h4>
-                <div class="trending-list">
-                    <div class="trending-item">
-                        <span class="trending-tag">#WebDevelopment</span>
-                        <small>245 posts</small>
-                    </div>
-                    <div class="trending-item">
-                        <span class="trending-tag">#CareerTips</span>
-                        <small>189 posts</small>
-                    </div>
-                    <div class="trending-item">
-                        <span class="trending-tag">#DIUEvents</span>
-                        <small>156 posts</small>
-                    </div>
-                    <div class="trending-item">
-                        <span class="trending-tag">#Internships</span>
-                        <small>134 posts</small>
-                    </div>
-                    <div class="trending-item">
-                        <span class="trending-tag">#StudyAbroad</span>
-                        <small>98 posts</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Upcoming Events -->
-            <div class="events-card">
-                <h4>Upcoming Events</h4>
-                <div class="events-list">
-                    <div class="event-item">
-                        <div class="event-date">
-                            <span class="day">15</span>
-                            <span class="month">Aug</span>
-                        </div>
-                        <div class="event-info">
-                            <h5>Tech Talk: AI in Education</h5>
-                            <p>2:00 PM - Auditorium</p>
-                        </div>
-                    </div>
-                    <div class="event-item">
-                        <div class="event-date">
-                            <span class="day">10</span>
-                            <span class="month">Oct</span>
-                        </div>
-                        <div class="event-info">
-                            <h5>Career Fair 2025</h5>
-                            <p>10:00 AM - Main Campus</p>
-                        </div>
-                    </div>
-                    <div class="event-item">
-                        <div class="event-date">
-                            <span class="day">24</span>
-                            <span class="month">Aug</span>
-                        </div>
-                        <div class="event-info">
-                            <h5>Final Exam: Summer 2025</h5>
-                            <p>9:00 AM - Web Engineering</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Links -->
-            <div class="footer-links">
-                <div class="links-section">
-                    <a href="#">About</a>
-                    <a href="#">Privacy</a>
-                    <a href="#">Terms</a>
-                    <a href="#">Help</a>
-                </div>
-                <p>&copy; 2025 DIU Forum</p>
-            </div>
-        </aside>
     </div>
     <!-- Post Creation Modal -->
     <div id="postModal" class="modal-overlay">
         <div class="post-modal-card">
-            <h3 class="modal-title">Create Post</h3>
+            <h3 id="postModalTitle" class="modal-title">Create Post</h3>
             <div id="postUserInfo" class="post-modal-userinfo">Signed in as <span id="postAuthorName"></span></div>
             <div class="post-modal-body">
                 <div class="form-field">

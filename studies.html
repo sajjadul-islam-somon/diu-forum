@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DIU Forum-Higher Studies</title>
+    <title>Higher Studies Opportunities</title>
     <link rel="stylesheet" href="blog.css"><!-- shared navbar + base tokens -->
     <link rel="stylesheet" href="studies.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,86 +13,121 @@
     <script src="config.js"></script>
 </head>
 
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-brand-card">
-                <div class="nav-brand">
+<body class="page-with-header">
+    <header class="header subpage-header">
+        <nav class="navbar">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
                     <i class="fas fa-graduation-cap"></i>
                     <span>DIU Forum</span>
-                </div>
+                </a>
             </div>
-            <div class="nav-menu-card">
-                <div class="nav-menu">
-                    <ul class="nav-links">
-                        <li class="nav-item"><a href="blog.html">Feeds</a></li>
-                        <li class="nav-item"><a href="jobs.html">Jobs</a></li>
-                        <li class="nav-item"><a class="active" href="studies.html">H. Studies</a></li>
-                    </ul>
-                </div>
+            <div class="nav-center">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="blog.html" class="nav-link">Blogs</a>
+                <a href="jobs.html" class="nav-link">Jobs</a>
+                <a href="studies.html" class="nav-link active">Higher Studies</a>
             </div>
-            <div class="user-menu-card">
-                <div class="user-menu">
-                    <div class="user-profile" onclick="toggleDropdown()">
-                        <span id="userName">Guest User</span>
-                        <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
-                        <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
-                    </div>
-                    <div class="dropdown" id="userDropdown">
-                        <div id="dropdownLogin">
-                            <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <div class="nav-right">
+                <div class="user-menu-card">
+                    <div class="user-menu">
+                        <div class="user-profile">
+                            <span id="userName">Guest User</span>
+                            <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
+                            <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
                         </div>
-                        <div id="dropdownLogout" class="hidden">
-                            <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <div class="dropdown" id="userDropdown">
+                            <div id="dropdownLogin">
+                                <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                            </div>
+                            <div id="dropdownLogout" class="hidden">
+                                <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                            <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                            <a href="help.html"><i class="fa-solid fa-circle-question"></i>Help</a>
                         </div>
-                        <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
-                        <a href="help.html"><i class="fa-solid fa-circle-question"></i>Help</a>
                     </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
 
     <div class="container">
-        <div class="header">
+        <div class="page-header">
             <div class="header-content">
-                <h1>Higher Education Opportunities</h1>
-                <p>Discover scholarships, graduate programs, and research opportunities worldwide</p>
+                <h1>Higher Studies & Scholarships</h1>
+                <p>Find programs, funding, and research roles across the globe</p>
             </div>
-            <button class="share-btn" id="share-opportunity-btn">
-                <span>+</span> Share Opportunity
+            <button class="primary-btn" id="share-opportunity-btn">
+                <i class="fa-solid fa-plus"></i>
+                <span>Share Opportunity</span>
             </button>
         </div>
 
-        <div class="filters">
-            <input type="text" class="search-input" placeholder="Search opportunities or institutions..." id="search-input">
-            <select class="filter-select" id="type-filter">
-                <option value="">All Types</option>
-                <option value="phd">PhD</option>
-                <option value="masters">Masters</option>
-                <option value="research">Research</option>
-                <option value="scholarship">Scholarship</option>
-            </select>
-            <select class="filter-select" id="country-filter">
-                <option value="">All Countries</option>
-                <option value="canada">Canada</option>
-                <option value="usa">USA</option>
-                <option value="uk">United Kingdom</option>
-                <option value="germany">Germany</option>
-                <option value="australia">Australia</option>
-            </select>
+        <div class="filters-toolbar">
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search by title, university, country, or requirements" id="search-input">
+            </div>
+            <div class="filter-group">
+                <button type="button" class="filter-pill" id="saved-filter-toggle">Saved</button>
+                <select class="filter-select" id="type-filter">
+                    <option value="">All Types</option>
+                    <option value="phd">PhD</option>
+                    <option value="masters">Masters</option>
+                    <option value="bachelors">Bachelors</option>
+                    <option value="diploma">Diploma</option>
+                    <option value="postdoc">Postdoc</option>
+                    <option value="fellowship">Fellowship</option>
+                    <option value="research">Research Position</option>
+                    <option value="scholarship">Scholarship</option>
+                    <option value="exchange">Exchange/Short Program</option>
+                    <option value="summer-school">Summer/Winter School</option>
+                </select>
+                <select class="filter-select" id="funding-filter">
+                    <option value="">All Funding</option>
+                    <option value="full-funding">Full Funding</option>
+                    <option value="partial-scholarship">Partial Scholarship</option>
+                    <option value="tuition-waiver">Tuition Waiver</option>
+                    <option value="assistantship">Teaching/Research Assistantship</option>
+                    <option value="stipend">Stipend/Monthly Allowance</option>
+                    <option value="self-funded">Self Funded</option>
+                </select>
+                <select class="filter-select" id="country-filter">
+                    <option value="">All Countries</option>
+                    <option value="usa">United States</option>
+                    <option value="canada">Canada</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="germany">Germany</option>
+                    <option value="france">France</option>
+                    <option value="netherlands">Netherlands</option>
+                    <option value="sweden">Sweden</option>
+                    <option value="norway">Norway</option>
+                    <option value="finland">Finland</option>
+                    <option value="denmark">Denmark</option>
+                    <option value="australia">Australia</option>
+                    <option value="new-zealand">New Zealand</option>
+                    <option value="japan">Japan</option>
+                    <option value="south-korea">South Korea</option>
+                    <option value="china">China</option>
+                    <option value="singapore">Singapore</option>
+                    <option value="malaysia">Malaysia</option>
+                    <option value="uae">UAE</option>
+                    <option value="saudi-arabia">Saudi Arabia</option>
+                    <option value="qatar">Qatar</option>
+                    <option value="india">India</option>
+                    <option value="bangladesh">Bangladesh</option>
+                </select>
+            </div>
         </div>
 
         <div class="results-info">
-            <span id="results-count">Showing 5 opportunities</span>
+            <span id="results-count">Showing opportunities</span>
         </div>
 
-        <div class="featured-section">
-            <h2>Featured Opportunities</h2>
-            <div class="featured-flex" id="opportunities-container">
-                <!-- Opportunities will be loaded here -->
-            </div>
+        <div class="featured-flex" id="opportunities-container">
+            <!-- Opportunities will be loaded here -->
         </div>
     </div>
 
@@ -121,20 +156,26 @@
                     <select id="opportunity-type" name="opportunity_type" required>
                         <option value="">Select Type</option>
                         <option value="phd">PhD Program</option>
+                        <option value="postdoc">Postdoctoral</option>
                         <option value="masters">Masters Program</option>
+                        <option value="bachelors">Bachelors Program</option>
                         <option value="research">Research Position</option>
-                        <option value="scholarship">Scholarship</option>
                         <option value="fellowship">Fellowship</option>
+                        <option value="scholarship">Scholarship</option>
+                        <option value="exchange">Exchange/Short Program</option>
+                        <option value="summer-school">Summer/Winter School</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="funding">Funding Details</label>
                     <select id="funding" name="funding">
                         <option value="">Select Funding</option>
-                        <option value="full-funding">Full Funding</option>
+                        <option value="full-funding">Full Funding (Tuition + Stipend)</option>
                         <option value="partial-scholarship">Partial Scholarship</option>
-                        <option value="self-funded">Self Funded</option>
+                        <option value="tuition-waiver">Tuition Waiver</option>
                         <option value="assistantship">Teaching/Research Assistantship</option>
+                        <option value="stipend">Stipend/Monthly Allowance</option>
+                        <option value="self-funded">Self Funded</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -158,6 +199,17 @@
                     <button type="submit" class="btn-primary">Share Opportunity</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Opportunity Detail Modal -->
+    <div class="modal" id="opportunity-detail-modal">
+        <div class="modal-content opportunity-detail-content">
+            <div class="modal-header">
+                <h2>Opportunity Details</h2>
+                <button class="close-btn" id="close-opportunity-detail">&times;</button>
+            </div>
+            <div class="opportunity-detail-body" id="opportunity-detail-body"></div>
         </div>
     </div>
 

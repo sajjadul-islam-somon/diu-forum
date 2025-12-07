@@ -12,45 +12,44 @@
     <script src="config.js"></script>
 </head>
 
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-brand-card">
-                <div class="nav-brand">
+<body class="page-with-header">
+    <header class="header subpage-header">
+        <nav class="navbar">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
                     <i class="fas fa-graduation-cap"></i>
                     <span>DIU Forum</span>
-                </div>
+                </a>
             </div>
-            <div class="nav-menu-card">
-                <div class="nav-menu">
-                    <ul class="nav-links">
-                        <li class="nav-item"><a href="blog.html">Feeds</a></li>
-                        <li class="nav-item"><a href="jobs.html">Jobs</a></li>
-                        <li class="nav-item"><a href="studies.html">H. Studies</a></li>
-                    </ul>
-                </div>
+            <div class="nav-center">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="blog.html" class="nav-link">Blogs</a>
+                <a href="jobs.html" class="nav-link">Jobs</a>
+                <a href="studies.html" class="nav-link">Higher Studies</a>
             </div>
-            <div class="user-menu-card">
-                <div class="user-menu">
-                    <div class="user-profile" onclick="toggleDropdown()">
-                        <span id="userName">Guest User</span>
-                        <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
-                        <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
-                    </div>
-                    <div class="dropdown" id="userDropdown">
-                        <div id="dropdownLogin">
-                            <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <div class="nav-right">
+                <div class="user-menu-card">
+                    <div class="user-menu">
+                        <div class="user-profile">
+                            <span id="userName">Guest User</span>
+                            <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
+                            <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
                         </div>
-                        <div id="dropdownLogout" class="hidden">
-                            <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <div class="dropdown" id="userDropdown">
+                            <div id="dropdownLogin">
+                                <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                            </div>
+                            <div id="dropdownLogout" class="hidden">
+                                <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                            <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                            <a href="help.html" class="active"><i class="fa-solid fa-circle-question"></i>Help</a>
                         </div>
-                        <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
-                        <a href="help.html" class="active"><i class="fa-solid fa-circle-question"></i>Help</a>
                     </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <main style="max-width:900px;margin:32px auto;padding:0 16px;">
         <section
