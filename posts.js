@@ -1155,6 +1155,54 @@ function closeAllPostMenus(exceptMenu = null) {
     });
 }
 
+async function reportPost(post, authorName = '') {
+    const postId = post?.id;
+    if (!postId) return;
+    
+    const reason = prompt('Please describe why you are reporting this post:');
+    if (!reason || !reason.trim()) return;
+    
+    try {
+        const stored = localStorage.getItem('user_info');
+        const userInfo = stored ? JSON.parse(stored) : null;
+        
+        if (!window.supabaseClient) {
+            alert('Unable to submit report. Please try again later.');
+            return;
+        }
+        
+        let reporterId = null;
+        try {
+            const session = await window.supabaseClient.auth.getSession();
+            const user = session?.data?.session?.user;
+            if (user?.id) {
+                const { data: profile } = await window.supabaseClient
+                    .from('profiles')
+                    .select('id')
+                    .eq('auth_id', user.id)
+                    .maybeSingle();
+                reporterId = profile?.id || null;
+            }
+        } catch (_) {}
+        
+        const { error } = await window.supabaseClient
+            .from('reports')
+            .insert({
+                item_id: postId,
+                item_type: 'post',
+                reason: reason.trim(),
+                reporter_id: reporterId,
+                reporter_email: userInfo?.email || null
+            });
+        
+        if (error) throw error;
+        alert('Report submitted successfully. Thank you for helping keep our community safe.');
+    } catch (err) {
+        console.error('Failed to submit report', err);
+        alert('Failed to submit report. Please try again.');
+    }
+}
+
 function getPostPermalink(postId) {
     const base = `${window.location.origin}${window.location.pathname}`;
     return `${base}#post-${postId}`;

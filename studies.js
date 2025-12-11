@@ -274,7 +274,7 @@ function displayOpportunities(opportunities) {
                         <div class="job-menu-dropdown" id="study-menu-${index}" data-opportunity-id="${id}">
                             <button type="button" onclick="shareStudy('${id}')">Share</button>
                             ${isOwner ? `<button type="button" onclick="editStudy('${id}')">Edit</button>` : ''}
-                            ${isOwner ? `<button type="button" class="danger" onclick="deleteStudy('${id}')">Delete</button>` : ''}
+                            ${isOwner ? `<button type="button" class="danger" onclick="deleteStudy('${id}')">Delete</button>` : `<button type="button" onclick="reportStudy('${id}')">Report</button>`}
                         </div>
                     </div>
                 </div>
@@ -379,6 +379,52 @@ async function deleteStudy(id) {
     } catch (err) {
         console.error('deleteStudy failed', err);
         alert('Could not delete this opportunity.');
+    }
+}
+
+async function reportStudy(id) {
+    closeAllStudyMenus();
+    const reason = prompt('Please describe why you are reporting this study opportunity:');
+    if (!reason || !reason.trim()) return;
+    
+    try {
+        const stored = localStorage.getItem('user_info');
+        const userInfo = stored ? JSON.parse(stored) : null;
+        
+        if (!window.supabaseClient) {
+            alert('Unable to submit report. Please try again later.');
+            return;
+        }
+        
+        let reporterId = null;
+        try {
+            const session = await window.supabaseClient.auth.getSession();
+            const user = session?.data?.session?.user;
+            if (user?.id) {
+                const { data: profile } = await window.supabaseClient
+                    .from('profiles')
+                    .select('id')
+                    .eq('auth_id', user.id)
+                    .maybeSingle();
+                reporterId = profile?.id || null;
+            }
+        } catch (_) {}
+        
+        const { error } = await window.supabaseClient
+            .from('reports')
+            .insert({
+                item_id: id,
+                item_type: 'study',
+                reason: reason.trim(),
+                reporter_id: reporterId,
+                reporter_email: userInfo?.email || null
+            });
+        
+        if (error) throw error;
+        alert('Report submitted successfully. Thank you for helping keep our community safe.');
+    } catch (err) {
+        console.error('[Studies] Failed to submit report', err);
+        alert('Failed to submit report. Please try again.');
     }
 }
 

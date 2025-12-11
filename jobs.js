@@ -131,7 +131,7 @@ function displayJobs(jobs) {
                         <div class="job-menu-dropdown" id="job-menu-${index}" data-job-id="${job.id}">
                             <button type="button" onclick="shareJob('${job.id}')">Share</button>
                             ${isOwner ? `<button type="button" onclick="editJob('${job.id}')">Edit</button>` : ''}
-                            ${isOwner ? `<button type="button" class="danger" onclick="deleteJob('${job.id}')">Delete</button>` : ''}
+                            ${isOwner ? `<button type="button" class="danger" onclick="deleteJob('${job.id}')">Delete</button>` : `<button type="button" onclick="reportJob('${job.id}')">Report</button>`}
                         </div>
                     </div>
                 </div>
@@ -369,6 +369,52 @@ function toggleJobMenu(index) {
 
 function closeAllJobMenus() {
     document.querySelectorAll('.job-menu-dropdown').forEach(menu => menu.classList.remove('open'));
+}
+
+async function reportJob(jobId) {
+    closeAllJobMenus();
+    const reason = prompt('Please describe why you are reporting this job listing:');
+    if (!reason || !reason.trim()) return;
+    
+    try {
+        const stored = localStorage.getItem('user_info');
+        const userInfo = stored ? JSON.parse(stored) : null;
+        
+        if (!window.supabaseClient) {
+            alert('Unable to submit report. Please try again later.');
+            return;
+        }
+        
+        let reporterId = null;
+        try {
+            const session = await window.supabaseClient.auth.getSession();
+            const user = session?.data?.session?.user;
+            if (user?.id) {
+                const { data: profile } = await window.supabaseClient
+                    .from('profiles')
+                    .select('id')
+                    .eq('auth_id', user.id)
+                    .maybeSingle();
+                reporterId = profile?.id || null;
+            }
+        } catch (_) {}
+        
+        const { error } = await window.supabaseClient
+            .from('reports')
+            .insert({
+                item_id: jobId,
+                item_type: 'job',
+                reason: reason.trim(),
+                reporter_id: reporterId,
+                reporter_email: userInfo?.email || null
+            });
+        
+        if (error) throw error;
+        alert('Report submitted successfully. Thank you for helping keep our community safe.');
+    } catch (err) {
+        console.error('[Jobs] Failed to submit report', err);
+        alert('Failed to submit report. Please try again.');
+    }
 }
 
 function subscribeToProfileUpdates() {

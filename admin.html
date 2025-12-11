@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - DIU Forum</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>🔐 Admin Panel</h1>
+                <p>DIU Forum Administration</p>
+            </div>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+                <div id="login-error" class="error-message"></div>
+                <button type="submit" class="btn-login">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="dashboard-container" style="display: none;">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-content">
+                <h1>📊 Admin Dashboard</h1>
+                <div class="header-actions">
+                    <span class="admin-badge">Admin</span>
+                    <button id="logout-btn" class="btn-logout">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="admin-nav">
+            <button class="nav-tab active" data-tab="overview">Overview</button>
+            <button class="nav-tab" data-tab="reports">Reports</button>
+            <button class="nav-tab" data-tab="content">Content Management</button>
+            <button class="nav-tab" data-tab="users">Users</button>
+            <button class="nav-tab" data-tab="settings">Settings</button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="admin-main">
+            <!-- Overview Tab -->
+            <section id="tab-overview" class="tab-content active">
+                <h2>Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-details">
+                            <h3 id="stat-posts">0</h3>
+                            <p>Total Posts</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💼</div>
+                        <div class="stat-details">
+                            <h3 id="stat-jobs">0</h3>
+                            <p>Job Listings</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎓</div>
+                        <div class="stat-details">
+                            <h3 id="stat-studies">0</h3>
+                            <p>Study Opportunities</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-details">
+                            <h3 id="stat-users">0</h3>
+                            <p>Registered Users</p>
+                        </div>
+                    </div>
+                    <div class="stat-card alert">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-details">
+                            <h3 id="stat-reports">0</h3>
+                            <p>Pending Reports</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div id="recent-activity-list" class="activity-list">
+                        <p class="loading">Loading activity...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Tab -->
+            <section id="tab-reports" class="tab-content">
+                <div class="section-header">
+                    <h2>Reported Content</h2>
+                    <div class="filters">
+                        <select id="report-status-filter">
+                            <option value="">All Statuses</option>
+                            <option value="pending" selected>Pending</option>
+                            <option value="reviewed">Reviewed</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="dismissed">Dismissed</option>
+                        </select>
+                        <select id="report-type-filter">
+                            <option value="">All Types</option>
+                            <option value="post">Blog Posts</option>
+                            <option value="job">Job Listings</option>
+                            <option value="study">Study Opportunities</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="reports-list" class="reports-container">
+                    <p class="loading">Loading reports...</p>
+                </div>
+            </section>
+
+            <!-- Content Management Tab -->
+            <section id="tab-content" class="tab-content">
+                <div class="section-header">
+                    <h2>Content Management</h2>
+                    <div class="filters">
+                        <select id="content-type-filter">
+                            <option value="posts">Blog Posts</option>
+                            <option value="jobs">Job Listings</option>
+                            <option value="education_opportunities">Study Opportunities</option>
+                        </select>
+                        <input type="search" id="content-search" placeholder="Search content...">
+                    </div>
+                </div>
+                <div id="content-list" class="content-container">
+                    <p class="loading">Loading content...</p>
+                </div>
+            </section>
+
+            <!-- Users Tab -->
+            <section id="tab-users" class="tab-content">
+                <div class="section-header">
+                    <h2>User Management</h2>
+                    <input type="search" id="user-search" placeholder="Search users...">
+                </div>
+                <div id="users-list" class="users-container">
+                    <p class="loading">Loading users...</p>
+                </div>
+            </section>
+
+            <!-- Settings Tab -->
+            <section id="tab-settings" class="tab-content">
+                <h2>System Settings</h2>
+                <div class="settings-section">
+                    <h3>Moderation Settings</h3>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="auto-flag-spam" checked>
+                            Auto-flag potential spam content
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="require-approval">
+                            Require approval for first-time posters
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Database Actions</h3>
+                    <button id="refresh-stats-btn" class="btn-action">🔄 Refresh Statistics</button>
+                    <button id="export-reports-btn" class="btn-action">📥 Export Reports</button>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Cache Management</h3>
+                    <button id="clear-cache-btn" class="btn-action">🗑️ Clear Cache</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="confirm-title">Confirm Action</h3>
+            <p id="confirm-message">Are you sure you want to proceed?</p>
+            <div class="modal-actions">
+                <button id="confirm-cancel" class="btn-secondary">Cancel</button>
+                <button id="confirm-ok" class="btn-danger">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content large">
+            <button class="modal-close">&times;</button>
+            <div id="detail-content"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

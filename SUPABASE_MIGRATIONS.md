@@ -207,3 +207,64 @@ using (
 
 With these policies, the existing `.from('saved_items')` upsert/delete calls will work for the signed-in user without RPCs.
 
+---
+
+## Reports Table (Content Moderation)
+
+Create a table to store user-submitted reports for inappropriate or problematic content:
+
+```sql
+-- Reports table for content moderation
+create table if not exists public.reports (
+  id uuid not null default gen_random_uuid(),
+  item_id uuid not null,
+  item_type text not null,
+  reason text not null,
+  reporter_id uuid,
+  reporter_email text,
+  status text not null default 'pending',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  resolved_by text,
+  resolved_at timestamptz,
+  notes text,
+  constraint reports_pkey primary key (id),
+  constraint reports_reporter_id_fkey foreign key (reporter_id) references public.profiles (id) on delete set null,
+  constraint reports_item_type_check check (
+    item_type = any (array['post'::text, 'job'::text, 'study'::text])
+  ),
+  constraint reports_status_check check (
+    status = any (array['pending'::text, 'reviewed'::text, 'resolved'::text, 'dismissed'::text])
+  )
+);
+
+-- Indexes for efficient querying
+create index if not exists reports_item_idx on public.reports (item_id, item_type);
+create index if not exists reports_status_idx on public.reports (status);
+create index if not exists reports_reporter_idx on public.reports (reporter_id);
+create index if not exists reports_created_at_idx on public.reports (created_at desc);
+
+-- Enable RLS
+alter table public.reports enable row level security;
+
+-- Allow authenticated users to submit reports
+create policy reports_insert_authenticated
+on public.reports
+for insert
+to authenticated
+with check (true);
+
+-- Allow authenticated users to view their own reports
+create policy reports_select_own
+on public.reports
+for select
+to authenticated
+using (
+  reporter_id = (select p.id from public.profiles p where p.auth_id = auth.uid())
+);
+
+-- Note: Admin access to all reports should be handled via service role key or SECURITY DEFINER functions
+```
+
+This table enables users to report problematic content, which admins can then review and take action on via the admin panel.
+
