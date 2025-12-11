@@ -7,6 +7,7 @@
     { "source": "/studies", "destination": "/studies.html" },
     { "source": "/settings", "destination": "/settings.html" },
     { "source": "/help", "destination": "/help.html" },
-    { "source": "/login", "destination": "/login.html" }
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/admin", "destination": "/admin.html" }
   ]
 }

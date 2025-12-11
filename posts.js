@@ -1273,11 +1273,6 @@ function buildContactRow(iconClass, text, href) {
     return row;
 }
 
-function reportPost(post, authorName) {
-    const label = post?.title || (post?.body ? `${post.body.slice(0, 60)}…` : 'this post');
-    alert(`Thanks, we will review ${label} from ${authorName || 'this author'} soon.`);
-}
-
 function safeTrim(value) {
     return typeof value === 'string' ? value.trim() : '';
 }
