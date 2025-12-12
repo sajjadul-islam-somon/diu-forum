@@ -605,7 +605,7 @@ function refreshSaveButtons() {
 }
 
 async function ensureProfileExists() {
-    if (!window.supabaseClient || !currentUser) return null;
+    if (!window.supabaseClient || !currentUser || !currentUser.id) return null;
     const userId = currentUser.id;
     const lowerEmail = (currentUser.email || '').toLowerCase() || null;
     try {
@@ -661,7 +661,7 @@ async function resolveStudyProfileId() {
 }
 
 async function getCurrentProfileId() {
-    if (!currentUser) return null;
+    if (!currentUser || !currentUser.id) return null;
     try {
         const { data, error } = await window.supabaseClient
             .from('profiles')

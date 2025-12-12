@@ -63,25 +63,6 @@
                 <p>Help reunite lost items with their owners</p>
             </div>
 
-            <!-- Search and Filters -->
-            <div class="search-filter-bar">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search by item name or description...">
-                </div>
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">
-                        <i class="fas fa-list"></i> All Items
-                    </button>
-                    <button class="filter-btn" data-filter="found">
-                        <i class="fas fa-box"></i> Found
-                    </button>
-                    <button class="filter-btn" data-filter="handed-over">
-                        <i class="fas fa-handshake"></i> Handed Over
-                    </button>
-                </div>
-            </div>
-
             <!-- Tabs -->
             <div class="tabs">
                 <button class="tab-btn active" data-tab="found">
@@ -102,6 +83,14 @@
         </main>
 
         <!-- Right Sidebar (second column) -->
+        <aside class="right-sidebar">
+            <!-- Search Bar -->
+            <div class="card search-card">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search items...">
+                </div>
+            </div>
             <!-- Stats Card -->
             <div class="card stats-card">
                 <h4><i class="fas fa-chart-bar"></i> Statistics</h4>

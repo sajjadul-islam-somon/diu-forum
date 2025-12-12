@@ -1,5 +1,22 @@
 import { getCachedProfile, onProfileCacheUpdate } from './profileStore.js';
 
+// Setup navbar dropdown toggle
+const userProfile = document.querySelector('.user-profile');
+const userDropdown = document.getElementById('userDropdown');
+
+if (userProfile && userDropdown) {
+    userProfile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!userProfile.contains(e.target) && !userDropdown.contains(e.target)) {
+            userDropdown.style.display = 'none';
+        }
+    });
+}
+
 const supabase = window.supabaseClient;
 const profileCache = new Map();
 
@@ -57,16 +74,6 @@ function setupEventListeners() {
         searchQuery = searchInput.value.trim().toLowerCase();
         applyFilters();
     }, 300));
-
-    // Filter buttons
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.filter;
-            applyFilters();
-        });
-    });
 
     // Tab buttons
     tabButtons.forEach(btn => {
@@ -264,21 +271,14 @@ async function loadClaimsCounts() {
 function applyFilters() {
     let items = [...allItems];
 
-    // Tab filter
+    // Tab filter (only filter by tab, no separate status filter)
     if (currentTab === 'found') {
         items = items.filter(item => !item.handed_over);
     } else if (currentTab === 'handed-over') {
         items = items.filter(item => item.handed_over);
     }
 
-    // Status filter
-    if (currentFilter === 'found') {
-        items = items.filter(item => !item.handed_over);
-    } else if (currentFilter === 'handed-over') {
-        items = items.filter(item => item.handed_over);
-    }
-
-    // Search filter
+    // Search filter (based on current tab selection)
     if (searchQuery) {
         items = items.filter(item => {
             const itemName = (item.item_name || '').toLowerCase();
