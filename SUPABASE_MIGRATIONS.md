@@ -396,7 +396,6 @@ select
   p.department as author_department,
   p.institution as author_institution,
   p.avatar_url as author_avatar_url,
-  p.photo_url as author_photo_url,
   p.email as author_email
 from public.lost_found_items lfi
 left join public.profiles p on p.id = lfi.author_id;
@@ -422,7 +421,6 @@ returns table (
   author_department text,
   author_institution text,
   author_avatar_url text,
-  author_photo_url text,
   author_email text
 )
 language plpgsql
@@ -449,7 +447,6 @@ begin
     p.department,
     p.institution,
     p.avatar_url,
-    p.photo_url,
     p.email
   from public.lost_found_items lfi
   left join public.profiles p on p.id = lfi.author_id
