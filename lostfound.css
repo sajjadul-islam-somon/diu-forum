@@ -4,9 +4,9 @@
 /* Lost & Found Layout */
 .lostfound-layout {
     display: grid;
-    grid-template-columns: 280px 1fr 300px;
+    grid-template-columns: 1fr 300px;
     gap: 24px;
-    max-width: 1400px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 24px;
     margin-top: 80px;
@@ -825,7 +825,7 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
     .lostfound-layout {
-        grid-template-columns: 260px 1fr 280px;
+        grid-template-columns: 1fr 260px;
     }
 }
 
@@ -834,7 +834,6 @@
         grid-template-columns: 1fr;
     }
 
-    .left-sidebar,
     .right-sidebar {
         display: none;
     }

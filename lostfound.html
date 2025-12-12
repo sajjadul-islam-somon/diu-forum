@@ -53,42 +53,9 @@
     </header>
 
     <div class="lostfound-layout">
-        <!-- Left Sidebar -->
-        <aside class="left-sidebar">
-            <!-- User Profile Card -->
-            <div class="profile-card">
-                <div class="profile-header">
-                    <div class="profile-avatar" id="userAvatar">
-                        <img id="userAvatarImg" class="avatar-img" alt="" />
-                        <div id="userAvatarLetter" class="avatar-letter">U</div>
-                    </div>
-                </div>
-                <div class="profile-body">
-                    <h3 id="profileName">User Name</h3>
-                    <p id="profileType">Student</p>
-                    <p id="profileDepartment">Department</p>
-                </div>
-            </div>
+        <!-- No left sidebar: removed for 2-column layout -->
 
-            <!-- Quick Actions Card -->
-            <div class="card quick-actions-card">
-                <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
-                <button id="createItemBtn" class="action-btn primary">
-                    <i class="fas fa-plus-circle"></i> Post Found Item
-                </button>
-                <a href="blog.html" class="action-btn">
-                    <i class="fas fa-blog"></i> View Blogs
-                </a>
-                <a href="jobs.html" class="action-btn">
-                    <i class="fas fa-briefcase"></i> Browse Jobs
-                </a>
-                <a href="studies.html" class="action-btn">
-                    <i class="fas fa-graduation-cap"></i> Higher Studies
-                </a>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
+        <!-- Main Content (now first column) -->
         <main class="main-content">
             <!-- Page Header -->
             <div class="page-header">
@@ -134,8 +101,7 @@
             </div>
         </main>
 
-        <!-- Right Sidebar -->
-        <aside class="right-sidebar">
+        <!-- Right Sidebar (second column) -->
             <!-- Stats Card -->
             <div class="card stats-card">
                 <h4><i class="fas fa-chart-bar"></i> Statistics</h4>
@@ -171,6 +137,7 @@
     </div>
 
     <!-- Create/Edit Item Modal -->
+    <!-- Moved create button to main content header -->
     <div id="itemModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
