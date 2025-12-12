@@ -16,3 +16,31 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
 
 // Export it globally so other files can use "supabase"
 window.supabaseClient = supabase;
+
+// Safe localStorage wrapper to avoid exceptions when browser blocks storage
+window.safeLocal = {
+	getItem(key) {
+		try {
+			if (typeof localStorage === 'undefined') return null;
+			return localStorage.getItem(key);
+		} catch (e) {
+			return null;
+		}
+	},
+	setItem(key, value) {
+		try {
+			if (typeof localStorage === 'undefined') return;
+			localStorage.setItem(key, value);
+		} catch (e) {
+			// ignore
+		}
+	},
+	removeItem(key) {
+		try {
+			if (typeof localStorage === 'undefined') return;
+			localStorage.removeItem(key);
+		} catch (e) {
+			// ignore
+		}
+	}
+};

@@ -26,18 +26,23 @@ function safeParse(json) {
 }
 
 function readCache() {
-    if (typeof localStorage === 'undefined') return {};
-    const raw = safeParse(localStorage.getItem(CACHE_KEY) || 'null');
-    return raw && typeof raw === 'object' ? raw : {};
+    try {
+        const getter = window?.safeLocal?.getItem || (k => { try { return localStorage.getItem(k); } catch (_) { return null; } });
+        const raw = safeParse(getter(CACHE_KEY) || 'null');
+        return raw && typeof raw === 'object' ? raw : {};
+    } catch (_) {
+        return {};
+    }
 }
 
 let cachedProfile = readCache();
 
 function writeCache(profile) {
     cachedProfile = profile ? { ...profile } : {};
-    if (typeof localStorage !== 'undefined') {
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify(cachedProfile)); } catch (_) {}
-    }
+    try {
+        const setter = window?.safeLocal?.setItem || ((k, v) => { try { localStorage.setItem(k, v); } catch (_) {} });
+        setter(CACHE_KEY, JSON.stringify(cachedProfile));
+    } catch (_) {}
     try { window.dispatchEvent(new CustomEvent(PROFILE_EVENT, { detail: { profile: cachedProfile } })); } catch (_) {}
     return cachedProfile;
 }

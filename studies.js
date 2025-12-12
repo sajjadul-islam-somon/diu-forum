@@ -9,7 +9,8 @@ let editingStudyId = null;
 
 function getLocalUserInfo() {
     try {
-        const raw = localStorage.getItem('user_info');
+        const getter = window?.safeLocal?.getItem || (k => { try { return localStorage.getItem(k); } catch (_) { return null; } });
+        const raw = getter('user_info');
         return raw ? JSON.parse(raw) : null;
     } catch (_) {
         return null;
@@ -124,10 +125,13 @@ async function loadCurrentUser() {
 
 async function hydrateSavedOpportunities() {
     try {
-        const localSaved = JSON.parse(localStorage.getItem('saved_studies') || '[]');
+        const getter = window?.safeLocal?.getItem || (k => { try { return localStorage.getItem(k); } catch (_) { return null; } });
+        const raw = getter('saved_studies') || '[]';
+        const localSaved = JSON.parse(raw);
         localSaved.forEach(id => savedOpportunityIds.add(String(id)));
     } catch (_) {
-        localStorage.removeItem('saved_studies');
+        const remover = window?.safeLocal?.removeItem || (k => { try { localStorage.removeItem(k); } catch (_) {} });
+        remover('saved_studies');
     }
 
     if (!window.supabaseClient) return;
@@ -148,7 +152,10 @@ async function hydrateSavedOpportunities() {
 }
 
 function persistSavedOpportunities() {
-    localStorage.setItem('saved_studies', JSON.stringify(Array.from(savedOpportunityIds)));
+    try {
+        const setter = window?.safeLocal?.setItem || ((k, v) => { try { localStorage.setItem(k, v); } catch (_) {} });
+        setter('saved_studies', JSON.stringify(Array.from(savedOpportunityIds)));
+    } catch (_) {}
 }
 
 async function loadOpportunities() {
@@ -388,8 +395,12 @@ async function reportStudy(id) {
     if (!reason || !reason.trim()) return;
     
     try {
-        const stored = localStorage.getItem('user_info');
-        const userInfo = stored ? JSON.parse(stored) : null;
+        const getter = window?.safeLocal?.getItem || (k => { try { return localStorage.getItem(k); } catch (_) { return null; } });
+        let userInfo = null;
+        try {
+            const stored = getter('user_info');
+            userInfo = stored ? JSON.parse(stored) : null;
+        } catch (_) { userInfo = null; }
         
         if (!window.supabaseClient) {
             alert('Unable to submit report. Please try again later.');
@@ -763,9 +774,9 @@ function wireUI() {
         e.preventDefault();
         e.stopPropagation();
         // Mirror Jobs modal gating: require signed-in DIU account before opening
-        const stored = localStorage.getItem('user_info');
+        const getter = window?.safeLocal?.getItem || (k => { try { return localStorage.getItem(k); } catch (_) { return null; } });
         let userInfo = null;
-        try { userInfo = stored ? JSON.parse(stored) : null; } catch (_) { userInfo = null; }
+        try { const stored = getter('user_info'); userInfo = stored ? JSON.parse(stored) : null; } catch (_) { userInfo = null; }
         const email = (userInfo?.email || '').toLowerCase();
         const hasDiuEmail = email.endsWith('@diu.edu.bd');
         if (!userInfo || !hasDiuEmail) {
