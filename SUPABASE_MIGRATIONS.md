@@ -268,3 +268,324 @@ using (
 
 This table enables users to report problematic content, which admins can then review and take action on via the admin panel.
 
+---
+
+## Lost & Found System
+
+### Tables
+
+Run this SQL to create the Lost & Found tables, views, and RPCs:
+
+```sql
+-- 1) lost_found_items table
+create table if not exists public.lost_found_items (
+  id uuid default gen_random_uuid() primary key,
+  item_name text not null,
+  description text not null,
+  phone_number text not null,
+  date_found date not null,
+  place_found text not null,
+  time_found time,
+  author_id uuid not null,
+  handed_over boolean not null default false,
+  handed_over_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint lost_found_items_author_id_fkey foreign key (author_id) references public.profiles (id) on delete cascade
+);
+
+-- Indexes
+create index if not exists lost_found_items_author_id_idx on public.lost_found_items (author_id);
+create index if not exists lost_found_items_handed_over_idx on public.lost_found_items (handed_over);
+create index if not exists lost_found_items_created_at_idx on public.lost_found_items (created_at desc);
+
+-- Enable RLS
+alter table public.lost_found_items enable row level security;
+
+-- RLS Policies
+create policy lost_found_items_select_all
+on public.lost_found_items
+for select
+to authenticated
+using (true);
+
+create policy lost_found_items_insert_own
+on public.lost_found_items
+for insert
+to authenticated
+with check (
+  author_id = (select p.id from public.profiles p where p.auth_id = auth.uid())
+);
+
+create policy lost_found_items_update_own
+on public.lost_found_items
+for update
+to authenticated
+using (
+  author_id = (select p.id from public.profiles p where p.auth_id = auth.uid())
+);
+
+create policy lost_found_items_delete_own
+on public.lost_found_items
+for delete
+to authenticated
+using (
+  author_id = (select p.id from public.profiles p where p.auth_id = auth.uid())
+);
+
+-- 2) lost_found_claims table
+create table if not exists public.lost_found_claims (
+  id uuid default gen_random_uuid() primary key,
+  item_id uuid not null,
+  claimer_id uuid not null,
+  claimed_at timestamptz not null default now(),
+  notes text,
+  constraint lost_found_claims_item_id_fkey foreign key (item_id) references public.lost_found_items (id) on delete cascade,
+  constraint lost_found_claims_claimer_id_fkey foreign key (claimer_id) references public.profiles (id) on delete cascade,
+  constraint lost_found_claims_unique_claim unique (item_id, claimer_id)
+);
+
+-- Indexes
+create index if not exists lost_found_claims_item_id_idx on public.lost_found_claims (item_id);
+create index if not exists lost_found_claims_claimer_id_idx on public.lost_found_claims (claimer_id);
+
+-- Enable RLS
+alter table public.lost_found_claims enable row level security;
+
+-- RLS Policies
+create policy lost_found_claims_select_all
+on public.lost_found_claims
+for select
+to authenticated
+using (true);
+
+create policy lost_found_claims_insert_own
+on public.lost_found_claims
+for insert
+to authenticated
+with check (
+  claimer_id = (select p.id from public.profiles p where p.auth_id = auth.uid())
+);
+
+create policy lost_found_claims_delete_own
+on public.lost_found_claims
+for delete
+to authenticated
+using (
+  claimer_id = (select p.id from public.profiles p where p.auth_id = auth.uid())
+);
+
+-- 3) View: lost_found_items_with_profiles
+create or replace view public.lost_found_items_with_profiles as
+select
+  lfi.id,
+  lfi.item_name,
+  lfi.description,
+  lfi.phone_number,
+  lfi.date_found,
+  lfi.place_found,
+  lfi.time_found,
+  lfi.author_id,
+  lfi.handed_over,
+  lfi.handed_over_at,
+  lfi.created_at,
+  lfi.updated_at,
+  p.full_name as author_full_name,
+  p.display_name as author_display_name,
+  p.role as author_role,
+  p.department as author_department,
+  p.institution as author_institution,
+  p.avatar_url as author_avatar_url,
+  p.photo_url as author_photo_url,
+  p.email as author_email
+from public.lost_found_items lfi
+left join public.profiles p on p.id = lfi.author_id;
+
+-- 4) RPC: rpc_lost_found_items_with_profiles
+create or replace function public.rpc_lost_found_items_with_profiles()
+returns table (
+  id uuid,
+  item_name text,
+  description text,
+  phone_number text,
+  date_found date,
+  place_found text,
+  time_found time,
+  author_id uuid,
+  handed_over boolean,
+  handed_over_at timestamptz,
+  created_at timestamptz,
+  updated_at timestamptz,
+  author_full_name text,
+  author_display_name text,
+  author_role text,
+  author_department text,
+  author_institution text,
+  author_avatar_url text,
+  author_photo_url text,
+  author_email text
+)
+language plpgsql
+security definer
+as $$
+begin
+  return query
+  select
+    lfi.id,
+    lfi.item_name,
+    lfi.description,
+    lfi.phone_number,
+    lfi.date_found,
+    lfi.place_found,
+    lfi.time_found,
+    lfi.author_id,
+    lfi.handed_over,
+    lfi.handed_over_at,
+    lfi.created_at,
+    lfi.updated_at,
+    p.full_name,
+    p.display_name,
+    p.role,
+    p.department,
+    p.institution,
+    p.avatar_url,
+    p.photo_url,
+    p.email
+  from public.lost_found_items lfi
+  left join public.profiles p on p.id = lfi.author_id
+  order by lfi.created_at desc;
+end;
+$$;
+
+grant execute on function public.rpc_lost_found_items_with_profiles() to authenticated;
+
+-- 5) RPC: Toggle handed_over status
+create or replace function public.rpc_toggle_handed_over(p_item_id uuid)
+returns boolean
+language plpgsql
+security definer
+as $$
+declare
+  v_author_id uuid;
+  v_current_status boolean;
+  v_profile_id uuid;
+begin
+  -- Get current user's profile ID
+  select p.id into v_profile_id
+  from public.profiles p
+  where p.auth_id = auth.uid();
+  
+  if v_profile_id is null then
+    raise exception 'Profile not found';
+  end if;
+  
+  -- Get item author and current status
+  select author_id, handed_over into v_author_id, v_current_status
+  from public.lost_found_items
+  where id = p_item_id;
+  
+  if v_author_id is null then
+    raise exception 'Item not found';
+  end if;
+  
+  if v_author_id != v_profile_id then
+    raise exception 'Only the item owner can update handed over status';
+  end if;
+  
+  -- Toggle status
+  update public.lost_found_items
+  set 
+    handed_over = not v_current_status,
+    handed_over_at = case when not v_current_status then now() else null end,
+    updated_at = now()
+  where id = p_item_id;
+  
+  return not v_current_status;
+end;
+$$;
+
+grant execute on function public.rpc_toggle_handed_over(uuid) to authenticated;
+
+-- 6) RPC: Claim an item
+create or replace function public.rpc_claim_item(p_item_id uuid, p_notes text default null)
+returns uuid
+language plpgsql
+security definer
+as $$
+declare
+  v_profile_id uuid;
+  v_claim_id uuid;
+begin
+  -- Get current user's profile ID
+  select p.id into v_profile_id
+  from public.profiles p
+  where p.auth_id = auth.uid();
+  
+  if v_profile_id is null then
+    raise exception 'Profile not found';
+  end if;
+  
+  -- Insert claim (will fail if already claimed by this user due to unique constraint)
+  insert into public.lost_found_claims (item_id, claimer_id, notes)
+  values (p_item_id, v_profile_id, p_notes)
+  on conflict (item_id, claimer_id) do nothing
+  returning id into v_claim_id;
+  
+  return v_claim_id;
+end;
+$$;
+
+grant execute on function public.rpc_claim_item(uuid, text) to authenticated;
+
+-- 7) RPC: Unclaim an item
+create or replace function public.rpc_unclaim_item(p_item_id uuid)
+returns boolean
+language plpgsql
+security definer
+as $$
+declare
+  v_profile_id uuid;
+  v_deleted_count int;
+begin
+  -- Get current user's profile ID
+  select p.id into v_profile_id
+  from public.profiles p
+  where p.auth_id = auth.uid();
+  
+  if v_profile_id is null then
+    raise exception 'Profile not found';
+  end if;
+  
+  delete from public.lost_found_claims
+  where item_id = p_item_id and claimer_id = v_profile_id;
+  
+  get diagnostics v_deleted_count = row_count;
+  
+  return v_deleted_count > 0;
+end;
+$$;
+
+grant execute on function public.rpc_unclaim_item(uuid) to authenticated;
+```
+
+### Update reports table to include Lost & Found items
+
+```sql
+-- Update the item_type check constraint to include 'lost_found'
+alter table public.reports 
+drop constraint if exists reports_item_type_check;
+
+alter table public.reports 
+add constraint reports_item_type_check check (
+  item_type = any (array['post'::text, 'job'::text, 'study'::text, 'lost_found'::text])
+);
+```
+
+This Lost & Found system allows users to:
+- Post found items with details (name, description, phone, date/place found)
+- Search through items by name and description
+- Claim items they believe are theirs
+- Mark items as "Handed Over" when returned to owner
+- View all claimants for items they posted
+- Edit/delete their own posts
+- Report inappropriate posts

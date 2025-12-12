@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found - DIU Forum</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="lostfound.css">
+    <link rel="icon" type="image/x-icon" href="assets/diu-logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+</head>
+
+<body class="page-with-header">
+    <header class="header subpage-header">
+        <nav class="navbar">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>DIU Forum</span>
+                </a>
+            </div>
+            <div class="nav-center">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="blog.html" class="nav-link">Blogs</a>
+                <a href="jobs.html" class="nav-link">Jobs</a>
+                <a href="studies.html" class="nav-link">Higher Studies</a>
+                <a href="lostfound.html" class="nav-link active">Lost & Found</a>
+            </div>
+            <div class="nav-right">
+                <div class="user-menu-card">
+                    <div class="user-menu">
+                        <div class="user-profile">
+                            <span id="userName">Guest User</span>
+                            <img id="navUserAvatarImg" class="user-avatar-img" alt="User" />
+                            <i id="navUserIcon" class="fas fa-user-circle user-icon"></i>
+                        </div>
+                        <div class="dropdown" id="userDropdown">
+                            <div id="dropdownLogin">
+                                <a href="#" class="sign-in-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                            </div>
+                            <div id="dropdownLogout" class="hidden">
+                                <a href="#" class="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                            <a href="settings.html"><i class="fas fa-cog"></i>Settings</a>
+                            <a href="help.html"><i class="fa-solid fa-circle-question"></i>Help</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="lostfound-layout">
+        <!-- Left Sidebar -->
+        <aside class="left-sidebar">
+            <!-- User Profile Card -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="userAvatar">
+                        <img id="userAvatarImg" class="avatar-img" alt="" />
+                        <div id="userAvatarLetter" class="avatar-letter">U</div>
+                    </div>
+                </div>
+                <div class="profile-body">
+                    <h3 id="profileName">User Name</h3>
+                    <p id="profileType">Student</p>
+                    <p id="profileDepartment">Department</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="card quick-actions-card">
+                <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
+                <button id="createItemBtn" class="action-btn primary">
+                    <i class="fas fa-plus-circle"></i> Post Found Item
+                </button>
+                <a href="blog.html" class="action-btn">
+                    <i class="fas fa-blog"></i> View Blogs
+                </a>
+                <a href="jobs.html" class="action-btn">
+                    <i class="fas fa-briefcase"></i> Browse Jobs
+                </a>
+                <a href="studies.html" class="action-btn">
+                    <i class="fas fa-graduation-cap"></i> Higher Studies
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1><i class="fas fa-box-open"></i> Lost & Found</h1>
+                <p>Help reunite lost items with their owners</p>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by item name or description...">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-list"></i> All Items
+                    </button>
+                    <button class="filter-btn" data-filter="found">
+                        <i class="fas fa-box"></i> Found
+                    </button>
+                    <button class="filter-btn" data-filter="handed-over">
+                        <i class="fas fa-handshake"></i> Handed Over
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="found">
+                    <i class="fas fa-box"></i> Found Items
+                </button>
+                <button class="tab-btn" data-tab="handed-over">
+                    <i class="fas fa-handshake"></i> Handed Over
+                </button>
+            </div>
+
+            <!-- Items Container -->
+            <div id="itemsContainer" class="items-container">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading items...</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <!-- Stats Card -->
+            <div class="card stats-card">
+                <h4><i class="fas fa-chart-bar"></i> Statistics</h4>
+                <div class="stat-item">
+                    <span class="stat-label">Total Items</span>
+                    <span class="stat-value" id="totalItems">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Found Items</span>
+                    <span class="stat-value" id="foundItems">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Handed Over</span>
+                    <span class="stat-value" id="handedOverItems">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Claims</span>
+                    <span class="stat-value" id="totalClaims">0</span>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card info-card">
+                <h4><i class="fas fa-info-circle"></i> How It Works</h4>
+                <ol>
+                    <li>Found something? Post it here with details</li>
+                    <li>Lost something? Search and claim items</li>
+                    <li>Owners will see who claimed their items</li>
+                    <li>Mark as "Handed Over" when returned</li>
+                </ol>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Create/Edit Item Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Post Found Item</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="itemForm">
+                    <div class="form-group">
+                        <label for="itemName">
+                            <i class="fas fa-tag"></i> Item Name *
+                        </label>
+                        <input type="text" id="itemName" required placeholder="e.g., Blue Backpack, iPhone 13, Student ID Card">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="itemDescription">
+                            <i class="fas fa-align-left"></i> Description *
+                        </label>
+                        <textarea id="itemDescription" required rows="4" 
+                            placeholder="Provide detailed description (color, brand, distinguishing features, etc.)"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phoneNumber">
+                                <i class="fas fa-phone"></i> Phone Number *
+                            </label>
+                            <input type="tel" id="phoneNumber" required placeholder="+880 1XXX-XXXXXX">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dateFound">
+                                <i class="fas fa-calendar"></i> Date Found *
+                            </label>
+                            <input type="date" id="dateFound" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="placeFound">
+                                <i class="fas fa-map-marker-alt"></i> Place Found *
+                            </label>
+                            <input type="text" id="placeFound" required placeholder="e.g., Library 3rd Floor, Cafeteria">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="timeFound">
+                                <i class="fas fa-clock"></i> Time Found (Optional)
+                            </label>
+                            <input type="time" id="timeFound">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i> Post Item
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-info-circle"></i> Item Details</h2>
+                <button class="close-btn" id="closeDetailsBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="detailsContent">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Scripts -->
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="profileStore.js"></script>
+    <script type="module" src="lostfound.js"></script>
+</body>
+
+</html>
