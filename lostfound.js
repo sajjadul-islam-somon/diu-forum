@@ -410,7 +410,7 @@ function createItemCard(item) {
                 </button>
                 ${isOwner && !handedOver ? `
                     <button class="handover-btn" onclick="toggleHandover('${item.id}')">
-                        <i class="fas fa-handshake"></i> Mark Handed Over
+                        <i class="fas fa-handshake"></i> Handed Over
                     </button>
                 ` : ''}
             </div>
