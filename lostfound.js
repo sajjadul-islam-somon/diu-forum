@@ -388,7 +388,7 @@ function createItemCard(item) {
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="item-menu-dropdown" data-menu-id="${item.id}">
-                    ${isOwner ? `
+                    ${isOwner && !handedOver ? `
                         <button onclick="editItem('${item.id}')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
