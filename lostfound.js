@@ -456,16 +456,28 @@ function attachEventHandlers() {
     document.querySelectorAll('.item-menu-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
+            e.preventDefault();
             const itemId = btn.dataset.itemId;
             const menu = document.querySelector(`[data-menu-id="${itemId}"]`);
-            closeAllMenus();
+            
+            // Close all other menus
+            document.querySelectorAll('.item-menu-dropdown').forEach(m => {
+                if (m !== menu) {
+                    m.classList.remove('open');
+                }
+            });
+            
+            // Toggle current menu
             menu?.classList.toggle('open');
         });
     });
 
     // Close menus on outside click
-    document.addEventListener('click', () => {
-        closeAllMenus();
+    document.addEventListener('click', (e) => {
+        // Don't close if clicking on menu or button
+        if (!e.target.closest('.item-menu-btn') && !e.target.closest('.item-menu-dropdown')) {
+            closeAllMenus();
+        }
     });
 }
 
