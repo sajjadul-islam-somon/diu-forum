@@ -9,6 +9,7 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 24px;
+    align-items: start;
 }
 
 /* Page Header */
@@ -41,7 +42,7 @@
 .right-sidebar {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 6px;
 }
 
 /* Post Item Button in Sidebar */
@@ -57,7 +58,7 @@
 
 /* Post Item Card */
 .post-item-card {
-    padding: 16px;
+    padding: 0 16px 16px 16px;
 }
 
 /* Post Item Button Color */
@@ -85,7 +86,46 @@
 }
 
 .search-card {
-    padding: 16px;
+    padding: 12px 16px;
+}
+
+/* Filters Row - Side by side layout */
+.filters-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 0;
+    padding: 0 16px;
+}
+
+/* Filter Cards */
+.filter-card {
+    flex: 1;
+    padding: 0;
+}
+
+.filter-card h4 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 6px 0;
+    color: #1f2937;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.filter-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .search-box {
@@ -94,7 +134,7 @@
 
 .search-box i {
     position: absolute;
-    left: 16px;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     color: #9ca3af;
@@ -102,7 +142,7 @@
 
 .search-box input {
     width: 100%;
-    padding: 12px 16px 12px 44px;
+    padding: 8px 12px 8px 32px;
     border: 2px solid #e5e7eb;
     border-radius: 8px;
     font-size: 15px;
@@ -511,12 +551,14 @@
 
 /* Badge */
 .badge {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 36px;
+    border-radius: 8px;
+    font-size: 14px;
     font-weight: 600;
 }
 

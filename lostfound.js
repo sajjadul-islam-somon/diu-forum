@@ -28,11 +28,15 @@ let filteredItems = [];
 let currentTab = 'found';
 let currentFilter = 'all';
 let searchQuery = '';
+let dateFilter = '';
+let locationFilter = '';
 let editingItemId = null;
 
 // DOM Elements
 const itemsContainer = document.getElementById('itemsContainer');
 const searchInput = document.getElementById('searchInput');
+const dateFilterInput = document.getElementById('dateFilter');
+const locationFilterInput = document.getElementById('locationFilter');
 const filterButtons = document.querySelectorAll('.filter-btn');
 const tabButtons = document.querySelectorAll('.tab-btn');
 const createItemBtn = document.getElementById('createItemBtn');
@@ -72,6 +76,18 @@ function setupEventListeners() {
     // Search
     searchInput?.addEventListener('input', debounce(() => {
         searchQuery = searchInput.value.trim().toLowerCase();
+        applyFilters();
+    }, 300));
+
+    // Date filter
+    dateFilterInput?.addEventListener('change', () => {
+        dateFilter = dateFilterInput.value;
+        applyFilters();
+    });
+
+    // Location filter
+    locationFilterInput?.addEventListener('input', debounce(() => {
+        locationFilter = locationFilterInput.value.trim().toLowerCase();
         applyFilters();
     }, 300));
 
@@ -287,6 +303,22 @@ function applyFilters() {
             return itemName.includes(searchQuery) || 
                    description.includes(searchQuery) ||
                    place.includes(searchQuery);
+        });
+    }
+
+    // Date filter
+    if (dateFilter) {
+        items = items.filter(item => {
+            const itemDate = item.date_found ? item.date_found.split('T')[0] : '';
+            return itemDate === dateFilter;
+        });
+    }
+
+    // Location filter
+    if (locationFilter) {
+        items = items.filter(item => {
+            const place = (item.place_found || '').toLowerCase();
+            return place.includes(locationFilter);
         });
     }
 
