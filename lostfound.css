@@ -359,6 +359,13 @@
     gap: 4px;
 }
 
+.item-menu {
+    position: relative;
+    min-width: 36px;
+    display: flex;
+    justify-content: flex-end;
+}
+
 .item-menu-btn {
     background: none;
     border: none;
@@ -368,7 +375,6 @@
     cursor: pointer;
     color: #6b7280;
     transition: all 0.2s;
-    position: relative;
 }
 
 .item-menu-btn:hover {
@@ -384,7 +390,7 @@
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     min-width: 160px;
-    z-index: 100;
+    z-index: 500;
     display: none;
     overflow: hidden;
 }
