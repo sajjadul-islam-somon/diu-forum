@@ -23,6 +23,7 @@ const profileCache = new Map();
 let cachedProfile = getCachedProfile();
 let currentAuthUserId = cachedProfile?.authId || null;
 let currentProfileId = cachedProfile?.id || null;
+let currentUser = null;
 let allItems = [];
 let filteredItems = [];
 let currentTab = 'found';
@@ -39,45 +40,94 @@ const dateFilterInput = document.getElementById('dateFilter');
 const locationFilterInput = document.getElementById('locationFilter');
 const filterButtons = document.querySelectorAll('.filter-btn');
 const tabButtons = document.querySelectorAll('.tab-btn');
-const createItemBtn = document.getElementById('createItemBtn');
-const itemModal = document.getElementById('itemModal');
-const detailsModal = document.getElementById('detailsModal');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const closeDetailsBtn = document.getElementById('closeDetailsBtn');
-const cancelBtn = document.getElementById('cancelBtn');
-const itemForm = document.getElementById('itemForm');
-const modalTitle = document.getElementById('modalTitle');
-const submitBtn = document.getElementById('submitBtn');
-
-// Stats elements
 const totalItemsEl = document.getElementById('totalItems');
 const foundItemsEl = document.getElementById('foundItems');
 const handedOverItemsEl = document.getElementById('handedOverItems');
 const totalClaimsEl = document.getElementById('totalClaims');
 
-// Profile update listener
-onProfileCacheUpdate(profile => {
-    cachedProfile = profile || {};
-    if (cachedProfile?.authId) currentAuthUserId = cachedProfile.authId;
-    if (cachedProfile?.id) currentProfileId = cachedProfile.id;
-    hydrateProfileCard();
-});
-
-// Initialize
+// Initialize after DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    hydrateProfileCard();
-    loadItems();
-    setupEventListeners();
-    subscribeToRealtime();
+    // Always get currentUser and currentProfileId fresh from Supabase session before rendering
+    (async () => {
+        try {
+            currentUser = null;
+            currentProfileId = null;
+            if (window.supabaseClient) {
+                const session = await window.supabaseClient.auth.getSession();
+                currentUser = session?.data?.session?.user || null;
+                if (currentUser && currentUser.id) {
+                    // Get profileId from profiles table
+                    const { data } = await window.supabaseClient
+                        .from('profiles')
+                        .select('id')
+                        .eq('auth_id', currentUser.id)
+                        .maybeSingle();
+                    currentProfileId = data?.id || null;
+                }
+            }
+        } catch (_) {
+            currentUser = null;
+            currentProfileId = null;
+        }
+        attachEventHandlers();
+        hydrateProfileCard();
+        loadItems();
+    })();
+    // Ensure menu visibility updates on login/logout/profile change
+    if (typeof onProfileCacheUpdate === 'function') {
+        onProfileCacheUpdate(async profile => {
+            cachedProfile = profile || {};
+            // Always clear both on logout
+            currentUser = null;
+            currentProfileId = null;
+            if (window.supabaseClient) {
+                const session = await window.supabaseClient.auth.getSession();
+                currentUser = session?.data?.session?.user || null;
+                if (currentUser && currentUser.id) {
+                    const { data } = await window.supabaseClient
+                        .from('profiles')
+                        .select('id')
+                        .eq('auth_id', currentUser.id)
+                        .maybeSingle();
+                    currentProfileId = data?.id || null;
+                }
+            }
+            hydrateProfileCard();
+            loadItems();
+        });
+    }
 });
+const modalTitle = document.getElementById('modalTitle');
+const submitBtn = document.getElementById('submitBtn');
 
-// Setup event listeners
-function setupEventListeners() {
-    // Search
-    searchInput?.addEventListener('input', debounce(() => {
-        searchQuery = searchInput.value.trim().toLowerCase();
-        applyFilters();
-    }, 300));
+// Attach event handlers
+function attachEventHandlers() {
+    // Use event delegation for menu buttons
+    itemsContainer?.addEventListener('click', function (e) {
+        const btn = e.target.closest('.item-menu-btn');
+        if (btn) {
+            e.stopPropagation();
+            const itemId = btn.getAttribute('data-item-id');
+            if (!itemId) return;
+            // Close all menus first
+            closeAllMenus();
+            // Open this menu
+            const menu = itemsContainer.querySelector(`.item-menu-dropdown[data-menu-id="${itemId}"]`);
+            if (menu) menu.classList.toggle('open');
+            return;
+        }
+        // If click is inside a menu, do not close
+        if (e.target.closest('.item-menu-dropdown')) return;
+        // Otherwise, close all menus
+        closeAllMenus();
+    });
+
+    // Close menus on outside click (document)
+    document.addEventListener('click', function (e) {
+        // If click is inside a menu or button, do nothing (handled above)
+        if (e.target.closest('.item-menu-btn') || e.target.closest('.item-menu-dropdown')) return;
+        closeAllMenus();
+    });
 
     // Date filter
     dateFilterInput?.addEventListener('change', () => {
@@ -330,6 +380,10 @@ function applyFilters() {
 function displayItems() {
     if (!itemsContainer) return;
 
+    // Always update currentUser and currentProfileId from Supabase session before rendering
+    // (sync with jobs.js/studies.js logic)
+    // This is now handled globally before rendering, so nothing needed here
+
     if (filteredItems.length === 0) {
         itemsContainer.innerHTML = `
             <div class="empty-state">
@@ -342,7 +396,6 @@ function displayItems() {
     }
 
     itemsContainer.innerHTML = filteredItems.map(item => createItemCard(item)).join('');
-    attachEventHandlers();
 }
 
 // Create item card
@@ -360,35 +413,34 @@ function createItemCard(item) {
     const timeFound = item.time_found ? formatTime(item.time_found) : '';
     const placeFound = escapeHtml(item.place_found || '');
     const createdAt = formatTimeAgo(item.created_at);
-    
-    const isOwner = currentProfileId && item.author_id === currentProfileId;
+
+    // Robust login and ownership checks (match Jobs/Studies)
+    // Only show menu if user is logged in (currentUser or currentProfileId)
+    const isLoggedIn = !!currentUser || !!currentProfileId;
+    // Get current email and name for fallback
+    const currentEmail = (currentUser?.email || cachedProfile?.primaryEmail || '').toLowerCase();
+    const currentName = (currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name || currentUser?.name || cachedProfile?.displayName || '').toLowerCase();
+    const authorId = item.author_id || item.profile_id || null;
+    const authorEmail = (item.author_email || '').toLowerCase();
+    const authorNameKey = (item.author_display_name || item.author_full_name || '').toLowerCase();
+    const isOwner = Boolean(
+        (authorId && currentProfileId && String(authorId) === String(currentProfileId)) ||
+        (authorEmail && currentEmail && authorEmail === currentEmail) ||
+        (currentName && authorNameKey && currentName === authorNameKey)
+    );
     const claimsCount = item.claims_count || 0;
     const claimedByMe = item.claimed_by_me || false;
     const handedOver = item.handed_over || false;
 
-    return `
-        <div class="item-card ${handedOver ? 'handed-over' : ''}" data-item-id="${item.id}">
-            <div class="item-card-header">
-                <div class="item-author">
-                    <div class="item-author-avatar">
-                        ${authorAvatar ? 
-                            `<img src="${authorAvatar}" alt="${authorName}">` : 
-                            authorInitial
-                        }
-                    </div>
-                    <div class="item-author-info">
-                        <h4>${authorName}</h4>
-                        <div class="item-author-meta">
-                            ${authorRole ? `<span><i class="fas fa-user-tag"></i>${authorRole}</span>` : ''}
-                            ${authorDept ? `<span><i class="fas fa-building"></i>${authorDept}</span>` : ''}
-                        </div>
-                    </div>
-                </div>
+    let menuHtml = '';
+    if (isLoggedIn && !handedOver) {
+        menuHtml = `
+            <div class="item-menu">
                 <button class="item-menu-btn" data-item-id="${item.id}">
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="item-menu-dropdown" data-menu-id="${item.id}">
-                    ${isOwner && !handedOver ? `
+                    ${isOwner ? `
                         <button onclick="editItem('${item.id}')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
@@ -402,7 +454,28 @@ function createItemCard(item) {
                     `}
                 </div>
             </div>
-            
+        `;
+    }
+    return `
+        <div class="item-card ${handedOver ? 'handed-over' : ''}" data-item-id="${item.id}">
+            <div class="item-card-header">
+                <div class="item-author">
+                    <div class="item-author-avatar">
+                        ${authorAvatar ? 
+                            `<img src="${authorAvatar}" alt="${authorName}">` : 
+                            authorInitial
+                        }
+                    </div>
+                    <div class="item-author-info">
+                        <h4>${item.author_display_name || item.author_full_name || 'Anonymous'}</h4>
+                        <div class="item-author-meta">
+                            ${authorRole ? `<span><i class="fas fa-user-tag"></i>${authorRole}</span>` : ''}
+                            ${authorDept ? `<span><i class="fas fa-building"></i>${authorDept}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+                ${menuHtml}
+            </div>
             <div class="item-card-body">
                 <h3 class="item-name">
                     <i class="fas fa-tag"></i>
@@ -425,7 +498,6 @@ function createItemCard(item) {
                     </div>
                 </div>
             </div>
-            
             <div class="item-card-footer">
                 ${!handedOver ? `
                     <button class="claim-btn ${claimedByMe ? 'claimed' : ''}" onclick="toggleClaim('${item.id}')">
@@ -450,36 +522,6 @@ function createItemCard(item) {
     `;
 }
 
-// Attach event handlers
-function attachEventHandlers() {
-    // Menu buttons
-    document.querySelectorAll('.item-menu-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            const itemId = btn.dataset.itemId;
-            const menu = document.querySelector(`[data-menu-id="${itemId}"]`);
-            
-            // Close all other menus
-            document.querySelectorAll('.item-menu-dropdown').forEach(m => {
-                if (m !== menu) {
-                    m.classList.remove('open');
-                }
-            });
-            
-            // Toggle current menu
-            menu?.classList.toggle('open');
-        });
-    });
-
-    // Close menus on outside click
-    document.addEventListener('click', (e) => {
-        // Don't close if clicking on menu or button
-        if (!e.target.closest('.item-menu-btn') && !e.target.closest('.item-menu-dropdown')) {
-            closeAllMenus();
-        }
-    });
-}
 
 function closeAllMenus() {
     document.querySelectorAll('.item-menu-dropdown').forEach(menu => {
@@ -702,114 +744,108 @@ window.viewDetails = async function(itemId) {
     }
 
     const authorName = item.author_display_name || item.author_full_name || 'Anonymous';
-    const itemName = escapeHtml(item.item_name || 'Untitled');
+    const authorRole = item.author_role || '';
+    const authorDept = item.author_department || '';
+    const authorAvatar = item.author_avatar_url || item.author_photo_url;
+    const authorInitial = authorName.charAt(0).toUpperCase();
+
+    const itemName = escapeHtml(item.item_name || 'Untitled Item');
     const description = escapeHtml(item.description || '');
-    const phoneNumber = escapeHtml(item.phone_number || 'Not provided');
-    const authorEmail = escapeHtml(item.author_email || 'Not available');
+    const phoneNumber = escapeHtml(item.phone_number || '');
     const dateFound = formatDate(item.date_found);
-    const timeFound = item.time_found ? formatTime(item.time_found) : 'Not specified';
+    const timeFound = item.time_found ? formatTime(item.time_found) : '';
     const placeFound = escapeHtml(item.place_found || '');
+    const createdAt = formatTimeAgo(item.created_at);
 
-    const detailsContent = document.getElementById('detailsContent');
-    detailsContent.innerHTML = `
-        <div class="details-section">
-            <h3><i class="fas fa-box"></i> Item Information</h3>
-            <div class="details-grid">
-                <div class="details-item">
+    // Only show menu if user is logged in
+    const isLoggedIn = !!currentProfileId;
+    const isOwner = isLoggedIn && item.author_id === currentProfileId;
+    const claimsCount = item.claims_count || 0;
+    const claimedByMe = item.claimed_by_me || false;
+    const handedOver = item.handed_over || false;
+
+    return `
+        <div class="item-card ${handedOver ? 'handed-over' : ''}" data-item-id="${item.id}">
+            <div class="item-card-header">
+                <div class="item-author">
+                    <div class="item-author-avatar">
+                        ${authorAvatar ? 
+                            `<img src="${authorAvatar}" alt="${authorName}">` : 
+                            authorInitial
+                        }
+                    </div>
+                    <div class="item-author-info">
+                        <h4>${authorName}</h4>
+                        <div class="item-author-meta">
+                            ${authorRole ? `<span><i class="fas fa-user-tag"></i>${authorRole}</span>` : ''}
+                            ${authorDept ? `<span><i class="fas fa-building"></i>${authorDept}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+                ${isLoggedIn && !handedOver ? `
+                <div class="item-menu">
+                    <button class="item-menu-btn" data-item-id="${item.id}">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="item-menu-dropdown" data-menu-id="${item.id}">
+                        ${isOwner ? `
+                            <button onclick="editItem('${item.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button onclick="deleteItem('${item.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        ` : `
+                            <button onclick="reportItem('${item.id}')">
+                                <i class="fas fa-flag"></i> Report
+                            </button>
+                        `}
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+            <div class="item-card-body">
+                <h3 class="item-name">
                     <i class="fas fa-tag"></i>
-                    <div class="details-item-content">
-                        <div class="details-item-label">Item Name</div>
-                        <div class="details-item-value">${itemName}</div>
+                    ${itemName}
+                    ${handedOver ? '<span class="badge handed-over"><i class="fas fa-check-circle"></i> Handed Over</span>' : ''}
+                </h3>
+                <p class="item-description">${description}</p>
+                <div class="item-details">
+                    <div class="item-detail-row">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span><strong>Place:</strong> ${placeFound}</span>
                     </div>
-                </div>
-                <div class="details-item">
-                    <i class="fas fa-align-left"></i>
-                    <div class="details-item-content">
-                        <div class="details-item-label">Description</div>
-                        <div class="details-item-value">${description}</div>
+                    <div class="item-detail-row">
+                        <i class="fas fa-calendar"></i>
+                        <span><strong>Date:</strong> ${dateFound} ${timeFound ? `at ${timeFound}` : ''}</span>
                     </div>
-                </div>
-                <div class="details-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <div class="details-item-content">
-                        <div class="details-item-label">Place Found</div>
-                        <div class="details-item-value">${placeFound}</div>
-                    </div>
-                </div>
-                <div class="details-item">
-                    <i class="fas fa-calendar"></i>
-                    <div class="details-item-content">
-                        <div class="details-item-label">Date Found</div>
-                        <div class="details-item-value">${dateFound}</div>
-                    </div>
-                </div>
-                <div class="details-item">
-                    <i class="fas fa-clock"></i>
-                    <div class="details-item-content">
-                        <div class="details-item-label">Time Found</div>
-                        <div class="details-item-value">${timeFound}</div>
+                    <div class="item-detail-row">
+                        <i class="fas fa-clock"></i>
+                        <span>Posted ${createdAt}</span>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="details-section">
-            <h3><i class="fas fa-user"></i> Contact Information</h3>
-            <div class="details-grid">
-                <div class="details-item">
-                    <i class="fas fa-user-circle"></i>
-                    <div class="details-item-content">
-                        <div class="details-item-label">Posted By</div>
-                        <div class="details-item-value">${authorName}</div>
+            <div class="item-card-footer">
+                ${!handedOver ? `
+                    <button class="claim-btn ${claimedByMe ? 'claimed' : ''}" onclick="toggleClaim('${item.id}')">
+                        <i class="fas ${claimedByMe ? 'fa-check-circle' : 'fa-hand-paper'}"></i>
+                        ${claimedByMe ? 'Claimed' : 'Claim'} (${claimsCount})
+                    </button>
+                ` : `
+                    <div class="badge handed-over" style="flex: 1; justify-content: center;">
+                        <i class="fas fa-handshake"></i> Item Returned
                     </div>
-                </div>
-                <div class="details-item">
-                    <i class="fas fa-envelope"></i>
-                    <div class="details-item-content">
-                        <div class="details-item-label">Email</div>
-                        <div class="details-item-value">${authorEmail}</div>
-                    </div>
-                </div>
-                <div class="details-item">
-                    <i class="fas fa-phone"></i>
-                    <div class="details-item-content">
-                        <div class="details-item-label">Phone Number</div>
-                        <div class="details-item-value">${phoneNumber}</div>
-                    </div>
-                </div>
+                `}
+                <button class="details-btn" onclick="viewDetails('${item.id}')">
+                    <i class="fas fa-info-circle"></i> Details
+                </button>
+                ${isOwner && !handedOver ? `
+                    <button class="handover-btn" onclick="toggleHandover('${item.id}')">
+                        <i class="fas fa-handshake"></i> Handed Over
+                    </button>
+                ` : ''}
             </div>
-        </div>
-
-        <div class="details-section">
-            <h3><i class="fas fa-users"></i> Claimants (${claimants.length})</h3>
-            ${claimants.length > 0 ? `
-                <ul class="claimants-list">
-                    ${claimants.map(claim => {
-                        const profile = claim.profiles || {};
-                        const name = profile.display_name || profile.full_name || 'Anonymous';
-                        const email = profile.email || 'Not available';
-                        const avatar = profile.avatar_url;
-                        const initial = name.charAt(0).toUpperCase();
-                        
-                        return `
-                            <li class="claimant-item">
-                                <div class="claimant-avatar">
-                                    ${avatar ? `<img src="${avatar}" alt="${name}">` : initial}
-                                </div>
-                                <div class="claimant-info">
-                                    <div class="claimant-name">${escapeHtml(name)}</div>
-                                    <div class="claimant-email">${escapeHtml(email)}</div>
-                                </div>
-                            </li>
-                        `;
-                    }).join('')}
-                </ul>
-            ` : `
-                <div class="no-claimants">
-                    <i class="fas fa-inbox"></i>
-                    <p>No one has claimed this item yet</p>
-                </div>
-            `}
         </div>
     `;
 
