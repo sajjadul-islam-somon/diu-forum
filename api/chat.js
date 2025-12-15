@@ -34,10 +34,9 @@ export default async function handler(req, res) {
         // Initialize Google Generative AI
         const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
         
-        // Use gemini-1.5-pro (gemini-3-pro-preview doesn't exist yet)
-        // Available models: gemini-1.5-pro, gemini-1.5-flash, gemini-pro
+        // Use gemini-3-pro-preview as specified by user's API key
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-pro",
+            model: "gemini-3-pro-preview",
             generationConfig: {
                 temperature: 0.7,
                 topP: 0.95,
