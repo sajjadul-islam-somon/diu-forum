@@ -204,23 +204,48 @@ function filterOpportunities() {
         const id = getOpportunityId(item);
         if (savedFilterActive && !savedOpportunityIds.has(id)) return false;
 
+        const meta = item.metadata || {};
+        
         const haystack = [
             item.title,
-            item.university,
+            item.institution,
+            item.provider,
             item.country,
             item.description,
             item.requirements,
             item.opportunity_type,
-            item.type,
+            meta.university,
+            meta.provider,
+            meta.country,
+            meta.description,
         ]
             .filter(Boolean)
             .join(' ')
             .toLowerCase();
 
         if (searchTerm && !haystack.includes(searchTerm)) return false;
-        if (typeValue && (item.opportunity_type || item.type || '').toLowerCase() !== typeValue.toLowerCase()) return false;
-        if (fundingValue && (item.funding || item.funding_type || '').toLowerCase() !== fundingValue.toLowerCase()) return false;
-        if (countryValue && (item.country || item.location || '').toLowerCase() !== countryValue.toLowerCase()) return false;
+        
+        // Type filter - prioritize direct column, fallback to metadata
+        if (typeValue) {
+            const itemType = (item.opportunity_type || meta.opportunity_type || meta.type || '').toLowerCase().replace(/[_\s-]/g, '');
+            const filterType = typeValue.toLowerCase().replace(/[_\s-]/g, '');
+            if (!itemType.includes(filterType)) return false;
+        }
+        
+        // Funding filter - prioritize direct column, fallback to metadata
+        if (fundingValue) {
+            const itemFunding = (item.funding || meta.funding || meta.funding_type || '').toLowerCase().replace(/[_\s-]/g, '');
+            const filterFunding = fundingValue.toLowerCase().replace(/[_\s-]/g, '');
+            if (!itemFunding.includes(filterFunding)) return false;
+        }
+        
+        // Country filter - prioritize direct column, fallback to metadata
+        if (countryValue) {
+            const itemCountry = (item.country || meta.country || meta.location || '').toLowerCase().replace(/[_\s-]/g, '');
+            const filterCountry = countryValue.toLowerCase().replace(/[_\s-]/g, '');
+            if (!itemCountry.includes(filterCountry)) return false;
+        }
+        
         return true;
     });
 
@@ -242,12 +267,12 @@ function displayOpportunities(opportunities) {
             const id = getOpportunityId(opportunity);
             const isSaved = savedOpportunityIds.has(id);
             const title = opportunity.title || 'Untitled Opportunity';
-            const university = opportunity.university || opportunity.provider || meta.university || meta.provider || 'University';
+            const university = opportunity.institution || opportunity.provider || meta.university || meta.provider || 'University';
             const country = opportunity.country || meta.country || 'Location';
-            const funding = opportunity.funding || opportunity.funding_type || meta.funding || '';
-            const type = opportunity.opportunity_type || opportunity.type || meta.opportunity_type || meta.type || '';
+            const funding = opportunity.funding || meta.funding || '';
+            const type = opportunity.opportunity_type || meta.opportunity_type || meta.type || '';
             const deadline = opportunity.deadline || meta.deadline || '';
-            const applyUrl = meta.application_url || meta.applyUrl || '';
+            const applyUrl = opportunity.more_info_url || meta.application_url || meta.applyUrl || '';
             const description = opportunity.description || meta.description || '';
             const requirements = parseRequirements(opportunity.requirements || meta.requirements);
             const rawPosterName = (opportunity.author_display_name || opportunity.author_full_name || opportunity.poster_display_name || opportunity.poster_full_name || meta.poster_display_name || meta.poster_name || opportunity.poster_name || getDisplayNameFallback()).trim();
@@ -884,10 +909,18 @@ function buildStudyPayload(formData, profileId = null, authId = null) {
     return {
         title: (formData.get('title') || '').trim(),
         provider: (formData.get('university') || formData.get('provider') || '').trim(),
+        institution: (formData.get('university') || formData.get('institution') || formData.get('provider') || '').trim(),
         description: (formData.get('description') || '').trim(),
+        country: (formData.get('country') || '').trim(),
+        opportunity_type: (formData.get('opportunity_type') || formData.get('opportunityType') || formData.get('type') || '').trim(),
+        funding: (formData.get('funding') || '').trim(),
+        deadline: formData.get('deadline') || null,
+        requirements: (formData.get('requirements') || '').trim(),
+        more_info_url: (formData.get('application_url') || formData.get('applyUrl') || formData.get('more_info_url') || '').trim(),
         // Let DB trigger assign author_id securely; send NULL to satisfy relaxed policy
         author_id: null,
         metadata: {
+            // Keep metadata for backwards compatibility
             country: (formData.get('country') || '').trim(),
             opportunity_type: (formData.get('opportunity_type') || formData.get('opportunityType') || formData.get('type') || '').trim(),
             funding: (formData.get('funding') || '').trim(),

@@ -54,12 +54,20 @@ CREATE TABLE IF NOT EXISTS jobs (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- Education opportunities table: scholarships, programs, fellowships, etc.
 CREATE TABLE IF NOT EXISTS education_opportunities (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   author_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
   title text NOT NULL,
   provider text,
+  institution text,
+  country text,
+  opportunity_type text,
+  funding text,
+  deadline date,
   description text,
+  requirements text,
+  more_info_url text,
   metadata jsonb DEFAULT '{}'::jsonb,
   created_at timestamptz NOT NULL DEFAULT now()
 );
@@ -91,6 +99,12 @@ CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
 CREATE INDEX IF NOT EXISTS idx_comments_parent_id ON comments(parent_id);
 CREATE INDEX IF NOT EXISTS idx_post_likes_post_id ON post_likes(post_id);
 CREATE INDEX IF NOT EXISTS idx_profiles_email ON profiles(email);
+CREATE INDEX IF NOT EXISTS idx_education_opportunities_author_id ON education_opportunities(author_id);
+CREATE INDEX IF NOT EXISTS idx_education_opportunities_created_at ON education_opportunities(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_education_opportunities_country ON education_opportunities(country);
+CREATE INDEX IF NOT EXISTS idx_education_opportunities_opportunity_type ON education_opportunities(opportunity_type);
+CREATE INDEX IF NOT EXISTS idx_education_opportunities_funding ON education_opportunities(funding);
+CREATE INDEX IF NOT EXISTS idx_education_opportunities_deadline ON education_opportunities(deadline);
 
 -- =====================================================
 -- TRIGGERS: maintain counters (like_count and comment_count)
@@ -297,6 +311,92 @@ CREATE POLICY "Insert education opportunities for DIU users" ON education_opport
   WITH CHECK (
     (auth.role() = 'authenticated')
   );
+
+-- =====================================================
+-- RPC FUNCTIONS: Views with joined data
+-- =====================================================
+-- Function to get education opportunities with profile information
+CREATE OR REPLACE FUNCTION public.rpc_education_opportunities_with_profiles()
+RETURNS TABLE (
+    id uuid,
+    author_id uuid,
+    title text,
+    provider text,
+    institution text,
+    country text,
+    opportunity_type text,
+    funding text,
+    deadline date,
+    description text,
+    requirements text,
+    more_info_url text,
+    metadata jsonb,
+    created_at timestamp with time zone,
+    author_full_name text,
+    author_display_name text,
+    author_avatar_url text,
+    author_email text,
+    author_role text,
+    author_department text,
+    author_institution text
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+AS $$
+    SELECT 
+        e.id,
+        e.author_id,
+        e.title,
+        e.provider,
+        e.institution,
+        e.country,
+        e.opportunity_type,
+        e.funding,
+        e.deadline,
+        e.description,
+        e.requirements,
+        e.more_info_url,
+        e.metadata,
+        e.created_at,
+        p.full_name AS author_full_name,
+        p.display_name AS author_display_name,
+        p.avatar_url AS author_avatar_url,
+        p.email AS author_email,
+        p.role AS author_role,
+        p.department AS author_department,
+        p.institution AS author_institution
+    FROM education_opportunities e
+    LEFT JOIN profiles p ON e.author_id = p.id
+    ORDER BY e.created_at DESC;
+$$;
+
+-- Grant execute permissions on RPC functions
+GRANT EXECUTE ON FUNCTION public.rpc_education_opportunities_with_profiles() TO anon, authenticated;
+
+-- =====================================================
+-- TRIGGERS: Auto-set author_id for education_opportunities
+-- =====================================================
+CREATE OR REPLACE FUNCTION public.set_education_opportunities_author()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- If author_id is not provided, set it from the current user
+    IF NEW.author_id IS NULL THEN
+        NEW.author_id := auth.uid();
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_set_edops_author ON public.education_opportunities;
+
+CREATE TRIGGER trg_set_edops_author 
+    BEFORE INSERT ON public.education_opportunities 
+    FOR EACH ROW 
+    EXECUTE FUNCTION public.set_education_opportunities_author();
 
 -- =====================================================
 -- Helpful example queries (client side uses Supabase JS; server-side or SQL console can use these to inspect)

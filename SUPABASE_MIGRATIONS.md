@@ -586,3 +586,81 @@ This Lost & Found system allows users to:
 - View all claimants for items they posted
 - Edit/delete their own posts
 - Report inappropriate posts
+
+---
+
+## UPGRADE EDUCATION OPPORTUNITIES TABLE
+
+**Simple SQL to add proper columns to existing table - Run this in Supabase SQL Editor**
+
+```sql
+-- Add missing columns to existing education_opportunities table
+ALTER TABLE public.education_opportunities
+ADD COLUMN IF NOT EXISTS institution text,
+ADD COLUMN IF NOT EXISTS country text,
+ADD COLUMN IF NOT EXISTS opportunity_type text,
+ADD COLUMN IF NOT EXISTS funding text,
+ADD COLUMN IF NOT EXISTS deadline date,
+ADD COLUMN IF NOT EXISTS requirements text,
+ADD COLUMN IF NOT EXISTS more_info_url text;
+
+-- Create indexes for fast filtering
+CREATE INDEX IF NOT EXISTS idx_edops_country ON public.education_opportunities(country);
+CREATE INDEX IF NOT EXISTS idx_edops_type ON public.education_opportunities(opportunity_type);
+CREATE INDEX IF NOT EXISTS idx_edops_funding ON public.education_opportunities(funding);
+CREATE INDEX IF NOT EXISTS idx_edops_deadline ON public.education_opportunities(deadline);
+
+-- Drop existing function before creating new one (fixes return type error)
+DROP FUNCTION IF EXISTS public.rpc_education_opportunities_with_profiles();
+
+-- Create/Update RPC function to join with profiles
+CREATE OR REPLACE FUNCTION public.rpc_education_opportunities_with_profiles()
+RETURNS TABLE (
+    id uuid,
+    author_id uuid,
+    title text,
+    provider text,
+    institution text,
+    country text,
+    opportunity_type text,
+    funding text,
+    deadline date,
+    description text,
+    requirements text,
+    more_info_url text,
+    metadata jsonb,
+    created_at timestamp with time zone,
+    author_full_name text,
+    author_display_name text,
+    author_avatar_url text,
+    author_email text
+)
+LANGUAGE sql STABLE SECURITY DEFINER
+AS $$
+    SELECT 
+        e.id, e.author_id, e.title, e.provider, e.institution, e.country,
+        e.opportunity_type, e.funding, e.deadline, e.description,
+        e.requirements, e.more_info_url, e.metadata, e.created_at,
+        p.full_name, p.display_name, p.avatar_url, p.email
+    FROM public.education_opportunities e
+    LEFT JOIN public.profiles p ON e.author_id = p.id
+    ORDER BY e.created_at DESC;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.rpc_education_opportunities_with_profiles() TO anon, authenticated;
+
+-- Migrate existing metadata to new columns (optional, run if you have existing data)
+UPDATE public.education_opportunities
+SET
+    institution = COALESCE(institution, metadata->>'university', metadata->>'institution'),
+    country = COALESCE(country, metadata->>'country'),
+    opportunity_type = COALESCE(opportunity_type, metadata->>'opportunity_type'),
+    funding = COALESCE(funding, metadata->>'funding'),
+    deadline = CASE WHEN deadline IS NULL AND metadata->>'deadline' IS NOT NULL 
+               THEN (metadata->>'deadline')::date ELSE deadline END,
+    requirements = COALESCE(requirements, metadata->>'requirements'),
+    more_info_url = COALESCE(more_info_url, metadata->>'application_url')
+WHERE institution IS NULL OR country IS NULL OR opportunity_type IS NULL;
+```
+
+**Done!** Your existing trigger and RLS policies remain unchanged.
