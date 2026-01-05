@@ -36,8 +36,8 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Server configuration error. Please contact support.' });
     }
 
-    // Initialize the model
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    // *** CRITICAL FIX: Use the stable, high-limit model ***
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     // Build conversation history for context
     let conversationContext = '';
@@ -62,6 +62,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
+    // Log the full error for Vercel logs so you can debug
     console.error('Error in chat API:', error);
     
     // Handle specific error types
