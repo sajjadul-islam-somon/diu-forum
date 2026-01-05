@@ -88,13 +88,30 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Create Post Section -->
-            <div class="create-post-card">
-                <div class="create-post-header">
-                    <div class="user-avatar-small" id="createPostAvatar">U</div>
-                    <button class="create-post-btn" id="newPostBtn">
-                        <span>What's on your mind?</span>
-                    </button>
+            <!-- Create Post & Search Section -->
+            <div class="create-search-container">
+                <div class="create-post-card">
+                    <div class="create-post-header">
+                        <div class="user-avatar-small" id="createPostAvatar">U</div>
+                        <button class="create-post-btn" id="newPostBtn">
+                            <span>What's on your mind?</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="search-bar-card">
+                    <div class="search-bar-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="search-input" 
+                            placeholder="Search posts, authors..." 
+                            autocomplete="off"
+                        />
+                        <button id="clearSearchBtn" class="clear-search-btn" style="display: none;" aria-label="Clear search">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 

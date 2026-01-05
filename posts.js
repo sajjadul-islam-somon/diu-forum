@@ -1330,3 +1330,105 @@ window.addEventListener('auth-ready', () => {
 window.addEventListener('storage', (ev) => {
     if (['diuProfile', 'user_profile'].includes(ev.key)) hydrateProfileCard();
 });
+
+// ===================================================
+// SEARCH FUNCTIONALITY
+// ===================================================
+
+const searchInput = document.getElementById('searchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+if (searchInput) {
+    // Real-time search as user types
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        
+        // Show/hide clear button
+        if (clearSearchBtn) {
+            clearSearchBtn.style.display = query ? 'flex' : 'none';
+        }
+        
+        filterPosts(query);
+    });
+}
+
+if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.focus();
+        }
+        clearSearchBtn.style.display = 'none';
+        filterPosts('');
+    });
+}
+
+function filterPosts(query) {
+    if (!postsContainer) return;
+    
+    const postCards = postsContainer.querySelectorAll('.post-card');
+    let visibleCount = 0;
+    
+    postCards.forEach(card => {
+        if (!query) {
+            // Show all posts when search is empty
+            card.style.display = '';
+            visibleCount++;
+            return;
+        }
+        
+        // Get post data
+        const postId = card.getAttribute('data-post-id');
+        const postData = postCache.get(postId);
+        
+        // Extract searchable text
+        const title = (card.querySelector('[data-post-heading]')?.textContent || '').toLowerCase();
+        const content = (card.querySelector('[data-post-content]')?.textContent || '').toLowerCase();
+        const authorName = (card.querySelector('[data-author-name]')?.textContent || '').toLowerCase();
+        
+        // Also check metadata from post data
+        const metaTitle = (postData?.title || '').toLowerCase();
+        const metaContent = (postData?.content || '').toLowerCase();
+        const metaAuthor = (
+            postData?.author_display_name || 
+            postData?.author_full_name || 
+            postData?.metadata?.author_name || 
+            ''
+        ).toLowerCase();
+        
+        // Check if query matches any field
+        const matches = 
+            title.includes(query) || 
+            content.includes(query) || 
+            authorName.includes(query) ||
+            metaTitle.includes(query) ||
+            metaContent.includes(query) ||
+            metaAuthor.includes(query);
+        
+        if (matches) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Show "no results" message if no posts match
+    const existingNoResults = postsContainer.querySelector('.search-no-results');
+    if (existingNoResults) {
+        existingNoResults.remove();
+    }
+    
+    if (query && visibleCount === 0) {
+        const noResultsDiv = document.createElement('div');
+        noResultsDiv.className = 'search-no-results';
+        noResultsDiv.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; color: #64748b;">
+                <i class="fas fa-search" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                <h3 style="margin: 0 0 8px 0; color: #475569;">No posts found</h3>
+                <p style="margin: 0;">Try different keywords or check your spelling</p>
+            </div>
+        `;
+        postsContainer.appendChild(noResultsDiv);
+    }
+}
