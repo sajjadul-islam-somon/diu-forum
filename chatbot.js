@@ -1,294 +1,446 @@
-// chatbot.js - Production-Ready AI Chatbot Component for Vercel Deployment
-// Uses ES6 Class Pattern for reusability across multiple pages
+/**
+ * DIU Forum AI Chatbot
+ * Secure, privacy-focused chatbot that only appears for logged-in users
+ * Uses Google's Gemini 2.0 Flash model via Vercel serverless function
+ */
 
-class ChatBot {
-    constructor(agentType, systemPrompt) {
-        this.agentType = agentType; // 'studies', 'jobs', 'admin'
-        this.systemPrompt = systemPrompt;
-        this.conversationHistory = [];
-        this.isOpen = false;
-        this.title = 'AI Assistant';
-        this.subtitle = 'Online';
-        this.welcomeMessage = 'Hello! How can I help you today?';
-        
-        this.init();
+class DIUChatbot {
+  constructor() {
+    this.isOpen = false;
+    this.messages = [];
+    this.isLoading = false;
+    this.user = null;
+    
+    // Suggestions for first-time users
+    this.suggestions = [
+      "Tell me about scholarship opportunities",
+      "How do I find jobs?",
+      "What's the latest in DIU Forum?"
+    ];
+  }
+
+  /**
+   * Initialize the chatbot
+   * Only renders UI if user is logged in
+   */
+  async init() {
+    // ==========================================
+    // PRIVACY CHECK: Only show for logged-in users
+    // ==========================================
+    const isLoggedIn = await this.checkAuth();
+    
+    if (!isLoggedIn) {
+      console.log('[DIU Chatbot] User not logged in. Chatbot hidden.');
+      return; // Do NOT render anything
     }
 
-    init() {
-        this.createUI();
-        this.attachEventListeners();
-        this.loadHistory();
-        this.setupLogoutListener();
+    console.log('[DIU Chatbot] User authenticated. Initializing chatbot...');
+    
+    // Load conversation history from sessionStorage
+    this.loadHistory();
+    
+    // Render the UI
+    this.render();
+    this.attachEventListeners();
+  }
+
+  /**
+   * Check if user is authenticated
+   * Checks both Supabase session and localStorage
+   */
+  async checkAuth() {
+    // Method 1: Check Supabase session
+    if (window.supabaseClient) {
+      try {
+        const { data, error } = await window.supabaseClient.auth.getSession();
+        if (!error && data?.session?.user) {
+          this.user = data.session.user;
+          return true;
+        }
+      } catch (err) {
+        console.warn('[DIU Chatbot] Supabase auth check failed:', err);
+      }
     }
 
-    createUI() {
-        // Create floating chat icon button
-        const icon = document.createElement('button');
-        icon.id = 'chatbot-icon';
-        icon.className = 'chatbot-icon';
-        icon.innerHTML = '💬';
-        icon.setAttribute('aria-label', 'Open AI Chat');
-        document.body.appendChild(icon);
-
-        // Create modal overlay and container
-        const overlay = document.createElement('div');
-        overlay.id = 'chatbot-overlay';
-        overlay.className = 'chatbot-overlay';
-        document.body.appendChild(overlay);
-
-        const modal = document.createElement('div');
-        modal.id = 'chatbot-modal';
-        modal.className = 'chatbot-modal';
-        modal.innerHTML = `
-            <div class="chatbot-header">
-                <div class="chatbot-header-info">
-                    <h3 id="chatbot-title">${this.title}</h3>
-                    <span class="chatbot-status">
-                        <span class="status-dot"></span>
-                        <span id="chatbot-subtitle">${this.subtitle}</span>
-                    </span>
-                </div>
-                <button id="chatbot-close" class="chatbot-close" aria-label="Close chat">&times;</button>
-            </div>
-            <div id="chatbot-messages" class="chatbot-messages">
-                <div class="bot-message">${this.welcomeMessage}</div>
-            </div>
-            <form id="chatbot-form" class="chatbot-input-area">
-                <input 
-                    type="text" 
-                    id="chatbot-input" 
-                    class="chatbot-input" 
-                    placeholder="Type your message..." 
-                    autocomplete="off"
-                    required
-                />
-                <button type="submit" class="chatbot-send-btn" aria-label="Send message">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M2 10L18 2L12 10L18 18L2 10Z" fill="currentColor"/>
-                    </svg>
-                </button>
-            </form>
-        `;
-        document.body.appendChild(modal);
+    // Method 2: Check localStorage (fallback)
+    try {
+      const getter = window?.safeLocal?.getItem || localStorage.getItem.bind(localStorage);
+      const userInfo = getter('user_info');
+      
+      if (userInfo) {
+        const parsed = JSON.parse(userInfo);
+        if (parsed?.email && parsed.email.endsWith('@diu.edu.bd')) {
+          this.user = parsed;
+          return true;
+        }
+      }
+    } catch (err) {
+      console.warn('[DIU Chatbot] localStorage check failed:', err);
     }
 
-    attachEventListeners() {
-        const icon = document.getElementById('chatbot-icon');
-        const overlay = document.getElementById('chatbot-overlay');
-        const closeBtn = document.getElementById('chatbot-close');
-        const form = document.getElementById('chatbot-form');
+    return false;
+  }
 
-        icon.addEventListener('click', () => this.toggleChat());
-        overlay.addEventListener('click', () => this.closeChat());
-        closeBtn.addEventListener('click', () => this.closeChat());
-        form.addEventListener('submit', (e) => this.handleSubmit(e));
-
-        // Close on ESC key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.isOpen) {
-                this.closeChat();
-            }
-        });
+  /**
+   * Load conversation history from sessionStorage
+   */
+  loadHistory() {
+    try {
+      const stored = sessionStorage.getItem('diu_chatbot_history');
+      if (stored) {
+        this.messages = JSON.parse(stored);
+      }
+    } catch (err) {
+      console.warn('[DIU Chatbot] Failed to load history:', err);
+      this.messages = [];
     }
+  }
 
-    toggleChat() {
-        this.isOpen ? this.closeChat() : this.openChat();
+  /**
+   * Save conversation history to sessionStorage
+   */
+  saveHistory() {
+    try {
+      sessionStorage.setItem('diu_chatbot_history', JSON.stringify(this.messages));
+    } catch (err) {
+      console.warn('[DIU Chatbot] Failed to save history:', err);
     }
+  }
 
-    openChat() {
-        const modal = document.getElementById('chatbot-modal');
-        const overlay = document.getElementById('chatbot-overlay');
-        const icon = document.getElementById('chatbot-icon');
-        const input = document.getElementById('chatbot-input');
+  /**
+   * Render the chatbot UI
+   */
+  render() {
+    // Create floating button
+    const button = document.createElement('button');
+    button.className = 'diu-chatbot-button';
+    button.setAttribute('aria-label', 'Open AI Chatbot');
+    button.innerHTML = `
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+        <path d="M7 9h10v2H7zm0-3h10v2H7zm0 6h7v2H7z"/>
+      </svg>
+    `;
 
-        modal.classList.add('active');
-        overlay.classList.add('active');
-        icon.style.display = 'none';
-        this.isOpen = true;
+    // Create chat window
+    const window = document.createElement('div');
+    window.className = 'diu-chatbot-window';
+    window.innerHTML = `
+      <div class="diu-chatbot-header">
+        <div class="diu-chatbot-header-content">
+          <div class="diu-chatbot-avatar">🤖</div>
+          <div>
+            <h3 class="diu-chatbot-header-title">DIU AI Assistant</h3>
+            <p class="diu-chatbot-header-status">
+              <span class="diu-chatbot-status-indicator"></span>
+              Online
+            </p>
+          </div>
+        </div>
+        <button class="diu-chatbot-close" aria-label="Close chatbot">&times;</button>
+      </div>
+      
+      <div class="diu-chatbot-messages" id="diu-chatbot-messages">
+        ${this.messages.length === 0 ? this.renderWelcome() : this.renderMessages()}
+      </div>
+      
+      <div class="diu-chatbot-input-area">
+        <textarea 
+          class="diu-chatbot-input" 
+          id="diu-chatbot-input"
+          placeholder="Ask me anything..."
+          rows="1"
+          maxlength="1000"
+        ></textarea>
+        <button class="diu-chatbot-send" id="diu-chatbot-send" aria-label="Send message">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+    `;
 
-        // Focus input after animation
-        setTimeout(() => input.focus(), 300);
-    }
+    // Add to DOM
+    document.body.appendChild(button);
+    document.body.appendChild(window);
 
-    closeChat() {
-        const modal = document.getElementById('chatbot-modal');
-        const overlay = document.getElementById('chatbot-overlay');
-        const icon = document.getElementById('chatbot-icon');
+    // Store references
+    this.button = button;
+    this.window = window;
+    this.messagesContainer = document.getElementById('diu-chatbot-messages');
+    this.input = document.getElementById('diu-chatbot-input');
+    this.sendButton = document.getElementById('diu-chatbot-send');
+  }
 
-        modal.classList.remove('active');
-        overlay.classList.remove('active');
-        icon.style.display = 'flex';
-        this.isOpen = false;
-    }
-
-    async handleSubmit(e) {
+  /**
+   * Attach event listeners
+   */
+  attachEventListeners() {
+    // Toggle chat window
+    this.button.addEventListener('click', () => this.toggle());
+    
+    // Close button
+    this.window.querySelector('.diu-chatbot-close').addEventListener('click', () => this.close());
+    
+    // Send message on button click
+    this.sendButton.addEventListener('click', () => this.sendMessage());
+    
+    // Send message on Enter (but allow Shift+Enter for new line)
+    this.input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
+        this.sendMessage();
+      }
+    });
 
-        const input = document.getElementById('chatbot-input');
-        const userMessage = input.value.trim();
+    // Auto-resize textarea
+    this.input.addEventListener('input', () => {
+      this.input.style.height = 'auto';
+      this.input.style.height = Math.min(this.input.scrollHeight, 120) + 'px';
+    });
 
-        if (!userMessage) return;
+    // Suggestion buttons
+    this.messagesContainer.querySelectorAll('.diu-chatbot-suggestion').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.input.value = btn.textContent;
+        this.sendMessage();
+      });
+    });
+  }
 
-        // Add user message to UI
-        this.addMessage(userMessage, 'user');
-        input.value = '';
-
-        // Add to conversation history
-        this.conversationHistory.push({ role: 'user', content: userMessage });
-        this.saveHistory();
-
-        // Show loading indicator
-        this.addLoadingMessage();
-
-        try {
-            // Call AI API
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    prompt: this.buildPrompt(userMessage),
-                    agentType: this.agentType,
-                    history: this.conversationHistory
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to get AI response');
-            }
-
-            const data = await response.json();
-            const aiReply = data.reply || "Sorry, I couldn't process that.";
-
-            // Remove loading indicator
-            this.removeLoadingMessage();
-
-            // Add AI response to UI
-            this.addMessage(aiReply, 'bot');
-
-            // Add to conversation history
-            this.conversationHistory.push({ role: 'bot', content: aiReply });
-            this.saveHistory();
-
-        } catch (error) {
-            console.error('Chatbot error:', error);
-            this.removeLoadingMessage();
-            this.addMessage('Sorry, I encountered an error. Please try again.', 'bot', true);
-        }
+  /**
+   * Toggle chat window open/close
+   */
+  toggle() {
+    if (this.isOpen) {
+      this.close();
+    } else {
+      this.open();
     }
+  }
 
-    buildPrompt(userMessage) {
-        // Combine system prompt with conversation context
-        let fullPrompt = `${this.systemPrompt}\n\n`;
-        
-        // Add recent conversation history (last 5 exchanges)
-        const recentHistory = this.conversationHistory.slice(-10);
-        if (recentHistory.length > 0) {
-            fullPrompt += "Previous conversation:\n";
-            recentHistory.forEach(msg => {
-                fullPrompt += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n`;
-            });
-            fullPrompt += "\n";
-        }
+  /**
+   * Open chat window
+   */
+  open() {
+    this.isOpen = true;
+    this.window.classList.add('active');
+    this.input.focus();
+  }
 
-        fullPrompt += `User: ${userMessage}\nAssistant:`;
-        return fullPrompt;
+  /**
+   * Close chat window
+   */
+  close() {
+    this.isOpen = false;
+    this.window.classList.remove('active');
+  }
+
+  /**
+   * Render welcome message with suggestions
+   */
+  renderWelcome() {
+    const userName = this.user?.name || this.user?.email?.split('@')[0] || 'there';
+    return `
+      <div class="diu-chatbot-welcome">
+        <h3>👋 Hi ${this.escapeHtml(userName)}!</h3>
+        <p>I'm your AI assistant for DIU Forum. I can help you find scholarships, jobs, and answer questions about the platform.</p>
+        <div class="diu-chatbot-suggestions">
+          ${this.suggestions.map(s => `<button class="diu-chatbot-suggestion">${this.escapeHtml(s)}</button>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render all messages
+   */
+  renderMessages() {
+    return this.messages
+      .map(msg => this.renderMessage(msg))
+      .join('');
+  }
+
+  /**
+   * Render a single message
+   */
+  renderMessage(message) {
+    const isUser = message.role === 'user';
+    const avatar = isUser 
+      ? (this.user?.name?.[0]?.toUpperCase() || 'U')
+      : '🤖';
+    
+    return `
+      <div class="diu-chatbot-message ${message.role}${message.error ? ' error' : ''}">
+        <div class="diu-chatbot-message-avatar">${this.escapeHtml(avatar)}</div>
+        <div class="diu-chatbot-message-content">${this.escapeHtml(message.content)}</div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render typing indicator
+   */
+  renderTyping() {
+    return `
+      <div class="diu-chatbot-message bot">
+        <div class="diu-chatbot-message-avatar">🤖</div>
+        <div class="diu-chatbot-typing">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Send a message to the AI
+   */
+  async sendMessage() {
+    const message = this.input.value.trim();
+    
+    if (!message || this.isLoading) return;
+
+    // Add user message
+    this.addMessage('user', message);
+    this.input.value = '';
+    this.input.style.height = 'auto';
+
+    // Show typing indicator
+    this.isLoading = true;
+    this.sendButton.disabled = true;
+    this.messagesContainer.insertAdjacentHTML('beforeend', this.renderTyping());
+    this.scrollToBottom();
+
+    try {
+      // Call Vercel serverless function
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: message,
+          history: this.messages.slice(-10) // Send last 10 messages for context
+        })
+      });
+
+      // Remove typing indicator
+      const typingIndicator = this.messagesContainer.querySelector('.diu-chatbot-typing');
+      if (typingIndicator) {
+        typingIndicator.closest('.diu-chatbot-message').remove();
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      // Add AI response
+      this.addMessage('assistant', data.reply);
+
+    } catch (error) {
+      console.error('[DIU Chatbot] Error:', error);
+      
+      // Remove typing indicator
+      const typingIndicator = this.messagesContainer.querySelector('.diu-chatbot-typing');
+      if (typingIndicator) {
+        typingIndicator.closest('.diu-chatbot-message').remove();
+      }
+
+      // Show error message
+      this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.', true);
+    } finally {
+      this.isLoading = false;
+      this.sendButton.disabled = false;
+      this.input.focus();
     }
+  }
 
-    addMessage(content, role, isError = false) {
-        const messagesContainer = document.getElementById('chatbot-messages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `${role}-message${isError ? ' error-message' : ''}`;
-        
-        // Simple text content (you can enhance with markdown rendering if needed)
-        messageDiv.textContent = content;
-        
-        messagesContainer.appendChild(messageDiv);
-        this.scrollToBottom();
-    }
-
-    addLoadingMessage() {
-        const messagesContainer = document.getElementById('chatbot-messages');
-        const loadingDiv = document.createElement('div');
-        loadingDiv.id = 'loading-indicator';
-        loadingDiv.className = 'bot-message typing-indicator';
-        loadingDiv.innerHTML = '<span></span><span></span><span></span>';
-        messagesContainer.appendChild(loadingDiv);
-        this.scrollToBottom();
-    }
-
-    removeLoadingMessage() {
-        const loadingDiv = document.getElementById('loading-indicator');
-        if (loadingDiv) {
-            loadingDiv.remove();
-        }
-    }
-
-    scrollToBottom() {
-        const messagesContainer = document.getElementById('chatbot-messages');
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    saveHistory() {
-        const key = `chatbot_history_${this.agentType}`;
-        sessionStorage.setItem(key, JSON.stringify(this.conversationHistory));
-    }
-
-    loadHistory() {
-        const key = `chatbot_history_${this.agentType}`;
-        const saved = sessionStorage.getItem(key);
-        if (saved) {
-            try {
-                this.conversationHistory = JSON.parse(saved);
-                // Restore messages to UI
-                this.conversationHistory.forEach(msg => {
-                    this.addMessage(msg.content, msg.role);
-                });
-            } catch (e) {
-                console.error('Failed to load chat history', e);
-            }
-        }
-    }
-
-    clearHistory() {
-        const key = `chatbot_history_${this.agentType}`;
-        sessionStorage.removeItem(key);
-        this.conversationHistory = [];
-        
-        // Clear UI messages except welcome
-        const messagesContainer = document.getElementById('chatbot-messages');
-        messagesContainer.innerHTML = `<div class="bot-message">${this.welcomeMessage}</div>`;
-    }
-
-    setupLogoutListener() {
-        // Listen for logout events to clear history
-        window.addEventListener('auth-ready', (e) => {
-            if (!e.detail || !e.detail.user) {
-                this.clearHistory();
-            }
+  /**
+   * Add a message to the conversation
+   */
+  addMessage(role, content, isError = false) {
+    const message = { role, content, timestamp: Date.now(), error: isError };
+    this.messages.push(message);
+    
+    // Update UI
+    const messagesHtml = this.renderMessages();
+    this.messagesContainer.innerHTML = messagesHtml;
+    
+    // Re-attach suggestion listeners if welcome screen
+    if (this.messages.length <= 1) {
+      this.messagesContainer.querySelectorAll('.diu-chatbot-suggestion').forEach(btn => {
+        btn.addEventListener('click', () => {
+          this.input.value = btn.textContent;
+          this.sendMessage();
         });
-
-        // Also listen for explicit logout button clicks
-        document.addEventListener('click', (e) => {
-            if (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn')) {
-                this.clearHistory();
-            }
-        });
+      });
     }
+    
+    // Save and scroll
+    this.saveHistory();
+    this.scrollToBottom();
+  }
 
-    // Customization methods
-    setTitle(title, subtitle = 'Online') {
-        this.title = title;
-        this.subtitle = subtitle;
-        const titleEl = document.getElementById('chatbot-title');
-        const subtitleEl = document.getElementById('chatbot-subtitle');
-        if (titleEl) titleEl.textContent = title;
-        if (subtitleEl) subtitleEl.textContent = subtitle;
-    }
+  /**
+   * Scroll messages to bottom
+   */
+  scrollToBottom() {
+    setTimeout(() => {
+      this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+    }, 100);
+  }
 
-    setWelcomeMessage(message) {
-        this.welcomeMessage = message;
-    }
+  /**
+   * Escape HTML to prevent XSS
+   */
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  /**
+   * Clear conversation history
+   */
+  clearHistory() {
+    this.messages = [];
+    this.saveHistory();
+    this.messagesContainer.innerHTML = this.renderWelcome();
+    
+    // Re-attach suggestion listeners
+    this.messagesContainer.querySelectorAll('.diu-chatbot-suggestion').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.input.value = btn.textContent;
+        this.sendMessage();
+      });
+    });
+  }
 }
 
-// Export to window for global access
-window.ChatBot = ChatBot;
+// ==========================================
+// Auto-initialize when DOM is ready
+// ==========================================
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.diuChatbot = new DIUChatbot();
+    window.diuChatbot.init();
+  });
+} else {
+  window.diuChatbot = new DIUChatbot();
+  window.diuChatbot.init();
+}
+
+// ==========================================
+// Clear history on logout
+// ==========================================
+window.addEventListener('storage', (e) => {
+  if (e.key === 'user_info' && !e.newValue && window.diuChatbot) {
+    console.log('[DIU Chatbot] User logged out. Clearing history.');
+    window.diuChatbot.clearHistory();
+  }
+});

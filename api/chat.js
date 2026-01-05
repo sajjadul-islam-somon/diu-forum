@@ -1,87 +1,82 @@
-// api/chat.js - Vercel Serverless Function with ES Modules
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// Initialize the Google Generative AI client
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 export default async function handler(req, res) {
-    // Set CORS headers (if needed for cross-origin requests)
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    return res.status(200).end();
+  }
 
-    // Handle preflight OPTIONS request
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+  // Set CORS headers for all responses
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Only accept POST requests
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
+  }
+
+  try {
+    const { prompt, history = [] } = req.body;
+
+    // Validate input
+    if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+      return res.status(400).json({ error: 'Invalid prompt. Please provide a non-empty string.' });
     }
 
-    // Only allow POST requests
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
+    // Validate API key exists
+    if (!process.env.GOOGLE_API_KEY) {
+      console.error('GOOGLE_API_KEY environment variable is not set');
+      return res.status(500).json({ error: 'Server configuration error. Please contact support.' });
     }
 
-    try {
-        // Extract prompt and optional history from request body
-        const { prompt, history, agentType } = req.body;
+    // Initialize the model
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-        if (!prompt) {
-            return res.status(400).json({ error: 'Prompt is required' });
-        }
-
-        // Check if API key exists
-        if (!process.env.GOOGLE_API_KEY) {
-            console.error('GOOGLE_API_KEY environment variable not set');
-            return res.status(500).json({ error: 'Server configuration error' });
-        }
-
-        // Initialize Google Generative AI
-        const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-        
-        // Use gemini-3-pro-preview as specified by user's API key
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-3-pro-preview",
-            generationConfig: {
-                temperature: 0.7,
-                topP: 0.95,
-                topK: 40,
-                maxOutputTokens: 2048,
-            }
-        });
-
-        // Build conversation history if provided
-        let conversationHistory = [];
-        if (history && Array.isArray(history)) {
-            conversationHistory = history.map(msg => ({
-                role: msg.role === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.content }]
-            }));
-        }
-
-        // Generate AI response
-        const chat = model.startChat({
-            history: conversationHistory,
-            generationConfig: {
-                maxOutputTokens: 2048,
-            },
-        });
-
-        const result = await chat.sendMessage(prompt);
-        const response = await result.response;
-        const text = response.text();
-
-        // Log for debugging (visible in Vercel logs)
-        console.log(`[${agentType || 'unknown'}] AI request processed successfully`);
-
-        // Return successful response
-        return res.status(200).json({ 
-            reply: text,
-            agentType: agentType 
-        });
-
-    } catch (error) {
-        console.error("Gemini API Error:", error.message);
-        console.error("Error details:", error);
-        
-        return res.status(500).json({ 
-            error: 'Failed to generate AI response',
-            details: error.message 
-        });
+    // Build conversation history for context
+    let conversationContext = '';
+    if (Array.isArray(history) && history.length > 0) {
+      conversationContext = history
+        .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
+        .join('\n') + '\n';
     }
+
+    // Combine history with current prompt
+    const fullPrompt = conversationContext + `User: ${prompt.trim()}`;
+
+    // Generate response
+    const result = await model.generateContent(fullPrompt);
+    const response = await result.response;
+    const text = response.text();
+
+    // Return the AI response
+    return res.status(200).json({
+      reply: text,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error in chat API:', error);
+    
+    // Handle specific error types
+    if (error.message?.includes('API key')) {
+      return res.status(500).json({ error: 'API key configuration error.' });
+    }
+    
+    if (error.message?.includes('quota') || error.message?.includes('rate limit')) {
+      return res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
+    }
+
+    // Generic error response
+    return res.status(500).json({ 
+      error: 'Failed to generate response. Please try again.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
 }
