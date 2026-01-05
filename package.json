@@ -10,7 +10,8 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0"
+    "@ai-sdk/google": "^1.0.0",
+    "ai": "^4.0.0"
   },
   "devDependencies": {
     "vercel": "^37.0.0"

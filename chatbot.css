@@ -1,49 +1,45 @@
 /* ==========================================
-   DIU Forum AI Chatbot Styles
-   Modern Glassmorphism Design with Animations
+   DIU Forum AI Chatbot - Professional & Clean
+   High-contrast, readable design
    ========================================== */
 
 :root {
   --chatbot-primary: #2563eb;
-  --chatbot-secondary: #3b82f6;
-  --chatbot-accent: #60a5fa;
-  --chatbot-bg: rgba(255, 255, 255, 0.95);
-  --chatbot-glass: rgba(255, 255, 255, 0.7);
-  --chatbot-border: rgba(255, 255, 255, 0.3);
+  --chatbot-primary-dark: #1d4ed8;
+  --chatbot-bg-light: #ffffff;
+  --chatbot-bg-gray: #f9fafb;
+  --chatbot-text-dark: #1f2937;
+  --chatbot-text-muted: #6b7280;
+  --chatbot-border: #e5e7eb;
   --chatbot-shadow: rgba(0, 0, 0, 0.1);
-  --chatbot-text: #1e293b;
-  --chatbot-text-muted: #64748b;
-  --chatbot-user-msg: #2563eb;
-  --chatbot-bot-msg: #f8fafc;
-  --chatbot-error: #dc2626;
 }
 
 /* ==========================================
-   Floating Button
+   Floating Action Button (FAB)
    ========================================== */
 
 .diu-chatbot-button {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--chatbot-primary), var(--chatbot-secondary));
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   border: none;
   cursor: pointer;
-  box-shadow: 0 8px 24px var(--chatbot-shadow), 0 4px 8px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: chatbot-pulse 2s ease-in-out infinite;
+  transition: transform 0.3s ease;
+  animation: chatbot-bounce 2s ease-in-out infinite;
 }
 
 .diu-chatbot-button:hover {
   transform: scale(1.1);
-  box-shadow: 0 12px 32px var(--chatbot-shadow), 0 6px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
   animation: none;
 }
 
@@ -51,21 +47,18 @@
   transform: scale(0.95);
 }
 
-.diu-chatbot-button svg {
-  width: 32px;
-  height: 32px;
-  fill: white;
+.diu-chatbot-icon {
+  width: 36px;
+  height: 36px;
 }
 
-/* Pulse Animation for Floating Button */
-@keyframes chatbot-pulse {
+/* Bounce Animation */
+@keyframes chatbot-bounce {
   0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 8px 24px var(--chatbot-shadow), 0 4px 8px rgba(37, 99, 235, 0.2);
+    transform: translateY(0);
   }
   50% {
-    transform: scale(1.05);
-    box-shadow: 0 12px 32px var(--chatbot-shadow), 0 6px 12px rgba(37, 99, 235, 0.4);
+    transform: translateY(-8px);
   }
 }
 
@@ -75,117 +68,107 @@
 
 .diu-chatbot-window {
   position: fixed;
-  bottom: 100px;
+  bottom: 96px;
   right: 24px;
-  width: 400px;
+  width: 380px;
   max-width: calc(100vw - 48px);
-  height: 600px;
-  max-height: calc(100vh - 150px);
-  background: var(--chatbot-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 24px;
-  border: 1px solid var(--chatbot-border);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
+  height: 550px;
+  max-height: calc(100vh - 140px);
+  background: var(--chatbot-bg-light);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   z-index: 9998;
   opacity: 0;
-  transform: translateY(20px) scale(0.95);
+  transform: translateY(20px);
   pointer-events: none;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .diu-chatbot-window.active {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
   pointer-events: all;
-  animation: chatbot-slideUp 0.4s ease;
-}
-
-@keyframes chatbot-slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
 /* ==========================================
-   Chat Header
+   Header
    ========================================== */
 
 .diu-chatbot-header {
-  padding: 20px 24px;
-  background: linear-gradient(135deg, var(--chatbot-primary), var(--chatbot-secondary));
-  border-radius: 24px 24px 0 0;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  border-radius: 12px 12px 0 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.diu-chatbot-header-content {
+.diu-chatbot-header-left {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
 .diu-chatbot-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
 }
 
-.diu-chatbot-header-title {
-  font-size: 18px;
+.diu-chatbot-avatar svg {
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+.diu-chatbot-title {
+  font-size: 16px;
   font-weight: 600;
   margin: 0;
 }
 
-.diu-chatbot-header-status {
+.diu-chatbot-status {
   font-size: 12px;
-  opacity: 0.9;
-  margin: 0;
+  margin: 2px 0 0 0;
   display: flex;
   align-items: center;
   gap: 6px;
+  opacity: 0.9;
 }
 
-.diu-chatbot-status-indicator {
-  width: 8px;
-  height: 8px;
+.status-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #10b981;
-  animation: chatbot-blink 2s ease-in-out infinite;
+  animation: pulse-dot 2s ease-in-out infinite;
 }
 
-@keyframes chatbot-blink {
+@keyframes pulse-dot {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50% { opacity: 0.5; }
 }
 
 .diu-chatbot-close {
   background: rgba(255, 255, 255, 0.2);
   border: none;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 20px;
+  font-size: 18px;
+  line-height: 1;
   transition: background 0.2s ease;
 }
 
@@ -194,21 +177,21 @@
 }
 
 /* ==========================================
-   Chat Messages Area
+   Messages Area
    ========================================== */
 
 .diu-chatbot-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 16px;
+  background: var(--chatbot-bg-gray);
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  background: rgba(248, 250, 252, 0.5);
+  gap: 12px;
 }
 
 .diu-chatbot-messages::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .diu-chatbot-messages::-webkit-scrollbar-track {
@@ -216,12 +199,67 @@
 }
 
 .diu-chatbot-messages::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
+  background: #d1d5db;
   border-radius: 3px;
 }
 
 .diu-chatbot-messages::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: #9ca3af;
+}
+
+/* ==========================================
+   Welcome Screen
+   ========================================== */
+
+.diu-chatbot-welcome {
+  text-align: center;
+  padding: 32px 20px;
+}
+
+.welcome-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.diu-chatbot-welcome h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--chatbot-text-dark);
+  margin: 0 0 8px 0;
+}
+
+.diu-chatbot-welcome p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--chatbot-text-muted);
+  margin: 0 0 16px 0;
+}
+
+.diu-chatbot-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.diu-chatbot-suggestion {
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid var(--chatbot-border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--chatbot-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.diu-chatbot-suggestion:hover {
+  background: var(--chatbot-primary);
+  color: white;
+  border-color: var(--chatbot-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
 /* ==========================================
@@ -230,14 +268,14 @@
 
 .diu-chatbot-message {
   display: flex;
-  gap: 12px;
-  animation: chatbot-messageSlide 0.3s ease;
+  gap: 10px;
+  animation: messageSlide 0.3s ease;
 }
 
-@keyframes chatbot-messageSlide {
+@keyframes messageSlide {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -253,12 +291,12 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--chatbot-primary), var(--chatbot-secondary));
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -267,31 +305,38 @@
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
 }
 
-.diu-chatbot-message-content {
+.diu-chatbot-message.bot .diu-chatbot-message-avatar svg {
+  width: 18px;
+  height: 18px;
+  color: white;
+}
+
+.diu-chatbot-message-bubble {
   max-width: 75%;
-  padding: 12px 16px;
-  border-radius: 18px;
+  padding: 10px 14px;
+  border-radius: 10px;
   font-size: 14px;
   line-height: 1.5;
   word-wrap: break-word;
 }
 
-.diu-chatbot-message.user .diu-chatbot-message-content {
-  background: var(--chatbot-user-msg);
-  color: white;
-  border-bottom-right-radius: 4px;
+/* USER BUBBLE: Royal Blue background, White text */
+.diu-chatbot-message.user .diu-chatbot-message-bubble {
+  background: #2563eb;
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
 }
 
-.diu-chatbot-message.bot .diu-chatbot-message-content {
-  background: white;
-  color: var(--chatbot-text);
-  border-bottom-left-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+/* AI BUBBLE: Light Gray background, Dark text */
+.diu-chatbot-message.bot .diu-chatbot-message-bubble {
+  background: #f3f4f6;
+  color: #1f2937;
+  border-bottom-left-radius: 2px;
 }
 
-.diu-chatbot-message.error .diu-chatbot-message-content {
+.diu-chatbot-message.error .diu-chatbot-message-bubble {
   background: #fef2f2;
-  color: var(--chatbot-error);
+  color: #dc2626;
   border: 1px solid #fecaca;
 }
 
@@ -302,19 +347,18 @@
 .diu-chatbot-typing {
   display: flex;
   gap: 4px;
-  padding: 12px 16px;
-  background: white;
-  border-radius: 18px;
+  padding: 10px 14px;
+  background: #f3f4f6;
+  border-radius: 10px;
   width: fit-content;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .diu-chatbot-typing span {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--chatbot-text-muted);
-  animation: chatbot-typing 1.4s ease-in-out infinite;
+  background: #9ca3af;
+  animation: typing-bounce 1.4s ease-in-out infinite;
 }
 
 .diu-chatbot-typing span:nth-child(2) {
@@ -325,14 +369,12 @@
   animation-delay: 0.4s;
 }
 
-@keyframes chatbot-typing {
+@keyframes typing-bounce {
   0%, 60%, 100% {
     transform: translateY(0);
-    opacity: 0.7;
   }
   30% {
-    transform: translateY(-10px);
-    opacity: 1;
+    transform: translateY(-6px);
   }
 }
 
@@ -341,25 +383,25 @@
    ========================================== */
 
 .diu-chatbot-input-area {
-  padding: 16px 20px;
+  padding: 12px 16px;
   background: white;
-  border-radius: 0 0 24px 24px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid var(--chatbot-border);
+  border-radius: 0 0 12px 12px;
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: flex-end;
 }
 
 .diu-chatbot-input {
   flex: 1;
-  padding: 12px 16px;
-  border: 2px solid rgba(37, 99, 235, 0.2);
-  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--chatbot-border);
+  border-radius: 8px;
   font-size: 14px;
+  font-family: inherit;
   resize: none;
   outline: none;
-  font-family: inherit;
-  max-height: 120px;
+  max-height: 100px;
   transition: border-color 0.2s ease;
 }
 
@@ -367,27 +409,33 @@
   border-color: var(--chatbot-primary);
 }
 
+.diu-chatbot-input:disabled {
+  background: #f9fafb;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .diu-chatbot-input::placeholder {
   color: var(--chatbot-text-muted);
 }
 
 .diu-chatbot-send {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--chatbot-primary), var(--chatbot-secondary));
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--chatbot-primary);
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .diu-chatbot-send:hover:not(:disabled) {
+  background: var(--chatbot-primary-dark);
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .diu-chatbot-send:active:not(:disabled) {
@@ -400,86 +448,36 @@
 }
 
 .diu-chatbot-send svg {
-  width: 20px;
-  height: 20px;
-  fill: white;
+  width: 18px;
+  height: 18px;
 }
 
 /* ==========================================
-   Welcome Message
-   ========================================== */
-
-.diu-chatbot-welcome {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--chatbot-text-muted);
-}
-
-.diu-chatbot-welcome h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--chatbot-text);
-  margin: 0 0 12px 0;
-}
-
-.diu-chatbot-welcome p {
-  font-size: 14px;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.diu-chatbot-suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-  justify-content: center;
-}
-
-.diu-chatbot-suggestion {
-  padding: 8px 16px;
-  background: white;
-  border: 1px solid rgba(37, 99, 235, 0.2);
-  border-radius: 20px;
-  font-size: 13px;
-  color: var(--chatbot-primary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.diu-chatbot-suggestion:hover {
-  background: var(--chatbot-primary);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-}
-
-/* ==========================================
-   Responsive Design
+   Responsive
    ========================================== */
 
 @media (max-width: 480px) {
   .diu-chatbot-button {
-    width: 56px;
-    height: 56px;
+    width: 54px;
+    height: 54px;
     bottom: 16px;
     right: 16px;
   }
   
-  .diu-chatbot-button svg {
-    width: 28px;
-    height: 28px;
+  .diu-chatbot-icon {
+    width: 32px;
+    height: 32px;
   }
   
   .diu-chatbot-window {
     width: calc(100vw - 32px);
-    height: calc(100vh - 120px);
+    height: calc(100vh - 100px);
     bottom: 80px;
     right: 16px;
   }
   
-  .diu-chatbot-message-content {
-    max-width: 85%;
+  .diu-chatbot-message-bubble {
+    max-width: 80%;
   }
 }
 
@@ -494,45 +492,5 @@
   .diu-chatbot-suggestion {
     animation: none;
     transition: none;
-  }
-}
-
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --chatbot-bg: rgba(30, 41, 59, 0.95);
-    --chatbot-glass: rgba(30, 41, 59, 0.8);
-    --chatbot-text: #f1f5f9;
-    --chatbot-text-muted: #94a3b8;
-    --chatbot-bot-msg: #1e293b;
-  }
-  
-  .diu-chatbot-messages {
-    background: rgba(15, 23, 42, 0.5);
-  }
-  
-  .diu-chatbot-message.bot .diu-chatbot-message-content {
-    background: #334155;
-    color: #f1f5f9;
-  }
-  
-  .diu-chatbot-input-area {
-    background: #1e293b;
-    border-top-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .diu-chatbot-input {
-    background: #334155;
-    color: #f1f5f9;
-    border-color: rgba(96, 165, 250, 0.3);
-  }
-  
-  .diu-chatbot-suggestion {
-    background: #334155;
-    border-color: rgba(96, 165, 250, 0.3);
-  }
-  
-  .diu-chatbot-typing {
-    background: #334155;
   }
 }

@@ -1,10 +1,8 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// Initialize the Google Generative AI client
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+import { google } from '@ai-sdk/google';
+import { generateText } from 'ai';
 
 export default async function handler(req, res) {
-  // Handle CORS preflight requests
+  // Handle CORS
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -12,71 +10,37 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Set CORS headers for all responses
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Only accept POST requests
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { prompt, history = [] } = req.body;
+    const { prompt } = req.body;
 
-    // Validate input
     if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
-      return res.status(400).json({ error: 'Invalid prompt. Please provide a non-empty string.' });
+      return res.status(400).json({ error: 'Invalid prompt' });
     }
 
-    // Validate API key exists
     if (!process.env.GOOGLE_API_KEY) {
-      console.error('GOOGLE_API_KEY environment variable is not set');
-      return res.status(500).json({ error: 'Server configuration error. Please contact support.' });
+      console.error('GOOGLE_API_KEY not set');
+      return res.status(500).json({ error: 'Server configuration error' });
     }
 
-    // Initialize the model
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-
-    // Build conversation history for context
-    let conversationContext = '';
-    if (Array.isArray(history) && history.length > 0) {
-      conversationContext = history
-        .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
-        .join('\n') + '\n';
-    }
-
-    // Combine history with current prompt
-    const fullPrompt = conversationContext + `User: ${prompt.trim()}`;
-
-    // Generate response
-    const result = await model.generateContent(fullPrompt);
-    const response = await result.response;
-    const text = response.text();
-
-    // Return the AI response
-    return res.status(200).json({
-      reply: text,
-      timestamp: new Date().toISOString()
+    // Use Vercel AI SDK with Gemini 2.5 Flash Lite
+    const { text } = await generateText({
+      model: google('gemini-2.5-flash-lite'),
+      prompt: prompt.trim(),
+      apiKey: process.env.GOOGLE_API_KEY,
     });
+
+    return res.status(200).json({ reply: text });
 
   } catch (error) {
-    console.error('Error in chat API:', error);
-    
-    // Handle specific error types
-    if (error.message?.includes('API key')) {
-      return res.status(500).json({ error: 'API key configuration error.' });
-    }
-    
-    if (error.message?.includes('quota') || error.message?.includes('rate limit')) {
-      return res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
-    }
-
-    // Generic error response
-    return res.status(500).json({ 
-      error: 'Failed to generate response. Please try again.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    console.error('Chat API error:', error);
+    return res.status(500).json({ error: 'Failed to generate response' });
   }
 }
