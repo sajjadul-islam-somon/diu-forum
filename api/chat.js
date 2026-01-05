@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     }
 
     // *** CRITICAL FIX: Use the stable, high-limit model ***
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-001' });
 
     // Build conversation history for context
     let conversationContext = '';
